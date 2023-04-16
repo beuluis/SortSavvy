@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "sort_savvy:block/quantum_chest_reader"
+  }
+}

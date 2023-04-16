@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "sort_savvy",
+  "version": "${version}",
+  "name": "SortSavvy",
+  "description": "Mod Description",
+  "authors": [
+    "Luis Beu"
+  ],
+  "contact": {
+    "homepage": "https://luisbeu.de/",
+    "issues": "https://github.com/beuluis/SortSavvy/issues",
+    "sources": "https://github.com/beuluis/SortSavvy"
+  },
+  "license": "MIT",
+  "icon": "assets/sort_savvy/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "de.luisbeu.sort_savvy.SortSavvy"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "de.luisbeu.sort_savvy.SortSavvyClient"
+      }
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=${fabricloader}",
+    "fabric-api": ">=${fabric_api}",
+    "fabric-language-kotlin": ">=${fabric_language_kotlin}",
+    "minecraft": ">=${minecraft}",
+    "java": ">=${java}"
+  }
+}
