@@ -10,9 +10,15 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.serialization.gson.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.minecraft.block.ChestBlock
+import net.minecraft.block.entity.ChestBlockEntity
+import net.minecraft.enchantment.Enchantment
+import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
+import net.minecraft.nbt.NbtElement
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
@@ -20,8 +26,14 @@ import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
 data class QuantumChestReaderScannedContent(
-    val id: String, val amount: Int
+    val id: String,
+    val amount: Int,
+    val category: String?,
+    val durability: Int?,
+    val damage: Int?,
+    val enchantments: List<NbtElement>?
 )
+
 
 data class Coordinates(
     val x: Int,
@@ -31,7 +43,7 @@ data class Coordinates(
 
 data class QuantumChestReaderResponse(
     val quantumChestReaderId: String,
-    val coordinates: Coordinates,
+    val quantumChestReaderCoordinates: Coordinates,
     val scannedContent: List<QuantumChestReaderScannedContent>
 )
 
@@ -39,21 +51,52 @@ data class ErrorResponse(
     val error: String, val message: String, val context: Any? = null
 )
 
-data class PositionContext(val x: Int, val y: Int, val z: Int)
-
 private fun getInventoryContents(inventory: Inventory): List<QuantumChestReaderScannedContent> {
-    return generateSequence(0) { it + 1 }.take(inventory.size()).map { inventory.getStack(it) }.filterNot { it.isEmpty }
-        .map { QuantumChestReaderScannedContent(Registry.ITEM.getId(it.item).toString(), it.count) }.toList()
+    return generateSequence(0) { it + 1 }
+        .take(inventory.size())
+        .map { inventory.getStack(it) }
+        .filterNot { it.isEmpty }
+        .map { stack ->
+            val itemId = Registry.ITEM.getId(stack.item).toString()
+            val count = stack.count
+            val category = stack.item.group?.name ?: "Uncategorized"
+            val durability = if (stack.isDamageable) stack.maxDamage - stack.damage else null
+            val damage = if (stack.isDamageable) stack.damage else null
+            val enchantments = if (stack.hasEnchantments()) stack.enchantments.toList() else null
+            QuantumChestReaderScannedContent(itemId, count, category, durability, damage, enchantments)
+        }
+        .toList()
 }
 
 private fun getInventoryEntity(server: MinecraftServer, x: Int, y: Int, z: Int): Inventory? {
     val potentialInventoryPos = BlockPos(x, y + 1, z)
     val chunkPos = ChunkPos(potentialInventoryPos)
     val chunk = server.getWorld(World.OVERWORLD)?.getChunk(chunkPos.x, chunkPos.z)
-    return chunk?.getBlockEntity(potentialInventoryPos) as? Inventory
+
+    if (chunk != null) {
+        val blockEntity = chunk.getBlockEntity(potentialInventoryPos)
+
+        if (blockEntity is ChestBlockEntity) {
+            val facing = ChestBlock.getFacing(blockEntity.cachedState)
+            val doubleChestPos = potentialInventoryPos.offset(facing)
+            val doubleChestBlockEntity = chunk.getBlockEntity(doubleChestPos)
+
+            if (doubleChestBlockEntity is ChestBlockEntity && ChestBlock.getFacing(doubleChestBlockEntity.cachedState) == facing.opposite) {
+                return DoubleInventory(blockEntity, doubleChestBlockEntity)
+            }
+        }
+
+        if (blockEntity is Inventory) {
+            return blockEntity
+        }
+    }
+
+    return null
 }
 
 
+
+@OptIn(DelicateCoroutinesApi::class)
 fun initWebServer(port: Int, server: MinecraftServer) {
     GlobalScope.launch {
         embeddedServer(Netty, port) {
@@ -115,7 +158,7 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                                 call.respond(
                                     HttpStatusCode.NotFound,
                                     ErrorResponse(
-                                        "no-inventory-found", "No inventory found at x=$x y=$y z=$z", PositionContext(x, y, z)
+                                        "no-inventory-found", "No inventory found at x=$x y=$y z=$z", Coordinates(x, y, z)
                                     )
                                 )
                             }
