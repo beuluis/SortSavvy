@@ -7,6 +7,7 @@ base {
     archivesName.set(project.extra["archives_base_name"] as String)
 }
 
+version = project.extra["mod_version"] as String
 group = project.extra["maven_group"] as String
 
 repositories {}
@@ -74,21 +75,21 @@ tasks {
 
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("sh", "-c", "echo MOD_VERSION=${project.extra["mod_version"]} >> ${System.getenv("GITHUB_OUTPUT") ?: "out.txt"}")
+            commandLine("sh", "-c", "echo MOD_VERSION=${project.extra["mod_version"]} >> ${System.getenv("GITHUB_OUTPUT")}")
         } else {
             commandLine("echo", "MOD_VERSION=${project.extra["mod_version"]}")
         }
     }
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("sh", "-c", "echo MINECRAFT_VERSION=${project.extra["minecraft_version"]} >> ${System.getenv("GITHUB_OUTPUT") ?: "out.txt"}")
+            commandLine("sh", "-c", "echo MINECRAFT_VERSION=${project.extra["minecraft_version"]} >> ${System.getenv("GITHUB_OUTPUT")}")
         } else {
             commandLine("echo", "MINECRAFT_VERSION=${project.extra["minecraft_version"]}")
         }
     }
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("sh", "-c", "echo JAVA_VERSION=${project.extra["java_version"]} >> ${System.getenv("GITHUB_OUTPUT") ?: "out.txt"}")
+            commandLine("sh", "-c", "echo JAVA_VERSION=${project.extra["java_version"]} >> ${System.getenv("GITHUB_OUTPUT")}")
         } else {
             commandLine("echo", "JAVA_VERSION=${project.extra["java_version"]}")
         }
