@@ -5,6 +5,10 @@ on:
     types:
       - created
 
+env:
+  VERSIONS: Minecraft 1.19:1.19.2,Java 17,Fabric
+  JAVA_VERSION: 17
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,7 +17,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 17
+          java-version: ${{env.JAVA_VERSION}}
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Execute Gradle build
@@ -24,6 +28,6 @@ jobs:
           file_path: build/libs/sort_savvy-${{ steps.build.outputs.version }}.jar
           game_endpoint: minecraft
           relations: fabric-api:requiredDependency
-          game_versions: Minecraft 1.19:1.19.2,Java 17,Fabric
+          game_versions: ${{env.VERSIONS}}
           project_id: 852994
           token: ${{ secrets.CF_API_TOKEN }}
