@@ -163,7 +163,7 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                     // Validate the param
                     if (quantumChestReaderId == null) {
                         // If validation fails return an error
-                        call.respond(HttpStatusCode.BadRequest, ErrorResponse("id-parameter-not-provided", "Id parameter not provided"))
+                        call.respond(HttpStatusCode.BadRequest, ErrorResponse("id-parameter-not-provided", "ID parameter not provided"))
                     } else {
                         // Read the saved nbt data
                         val serverState = ServerState.getServerState(server)
@@ -173,7 +173,7 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                             // Return error if no associated data is found
                             call.respond(
                                 HttpStatusCode.NotFound, ErrorResponse(
-                                    "id-no-found", "Quantum chest with ID $quantumChestReaderId not found"
+                                    "id-no-found", "QuantumChestReader with ID $quantumChestReaderId not found"
                                 )
                             )
                         } else {

@@ -34,7 +34,6 @@ class QuantumChestReaderEntity(pos: BlockPos, state: BlockState) :
         quantumChestReaderId = nbt.getString("quantumChestReaderId")
     }
 
-    // TODO: Scan all connected inventories
     // Expose a function to set the quantum chest reader id from the screen
     fun setQuantumChestReaderId(newQuantumChestReaderId: String, player: ServerPlayerEntity?) {
         // Don`t know when this is the case but we null check it to log an error and don`t crash something
