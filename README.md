@@ -34,7 +34,7 @@ The current features are:
 
 ## Installation
 
-Download the jar file from CurseForge or install it directly in teh launcher.
+Download the jar file from CurseForge or install it directly in the launcher.
 
 ## Blocks
 
@@ -47,6 +47,8 @@ Download the jar file from CurseForge or install it directly in teh launcher.
 TBD
 
 ## API
+
+Port for now `8082`
 
 ### Authentication
 
