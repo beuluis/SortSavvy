@@ -145,6 +145,8 @@ interface QuantumChestReaderScannedContent {
 interface QuantumChestReaderResponse {
   quantumChestReaderId: string;
   quantumChestReaderCoordinates: Coordinates;
+  primaryInventoryCoordinates?: Coordinates;
+  secondaryInventoryCoordinates?: Coordinates;
   scannedContent: QuantumChestReaderScannedContent[]
 }
 ```
@@ -163,7 +165,6 @@ interface Coordinates {
 
 - [ ] Add crafting recipes
 - [ ] Add filter organize block
-- [ ] Reuse functions for webserver
 - [ ] Add command to rescan all placed QuantumChestReaders
 - [ ] Add support for other dimensions
 - [ ] Add auth token for webserver

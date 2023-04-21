@@ -17,7 +17,11 @@ dependencies {
     mappings("net.fabricmc", "yarn", project.extra["yarn_mappings"] as String, null, "v2")
     modImplementation("net.fabricmc", "fabric-loader", project.extra["loader_version"] as String)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", project.extra["fabric_version"] as String)
-    modImplementation("net.fabricmc", "fabric-language-kotlin", project.extra["fabric_language_kotlin_version"] as String)
+    modImplementation(
+        "net.fabricmc",
+        "fabric-language-kotlin",
+        project.extra["fabric_language_kotlin_version"] as String
+    )
     implementation("io.ktor:ktor-server-core-jvm:2.2.4")
     implementation("io.ktor:ktor-server-netty-jvm:2.2.4")
     implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
@@ -48,19 +52,23 @@ tasks {
 
     processResources {
         filesMatching("fabric.mod.json") {
-            expand(mutableMapOf(
-                "version" to project.extra["mod_version"] as String,
-                "fabricloader" to project.extra["loader_version"] as String,
-                "fabric_api" to project.extra["fabric_version"] as String,
-                "fabric_language_kotlin" to project.extra["fabric_language_kotlin_version"] as String,
-                "minecraft" to project.extra["minecraft_version"] as String,
-                "java" to project.extra["java_version"] as String
-            ))
+            expand(
+                mutableMapOf(
+                    "version" to project.extra["mod_version"] as String,
+                    "fabricloader" to project.extra["loader_version"] as String,
+                    "fabric_api" to project.extra["fabric_version"] as String,
+                    "fabric_language_kotlin" to project.extra["fabric_language_kotlin_version"] as String,
+                    "minecraft" to project.extra["minecraft_version"] as String,
+                    "java" to project.extra["java_version"] as String
+                )
+            )
         }
         filesMatching("*.mixins.json") {
-            expand(mutableMapOf(
-                "java" to project.extra["java_version"] as String
-            ))
+            expand(
+                mutableMapOf(
+                    "java" to project.extra["java_version"] as String
+                )
+            )
         }
     }
 
@@ -75,21 +83,33 @@ tasks {
 
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("sh", "-c", "echo MOD_VERSION=${project.extra["mod_version"]} >> ${System.getenv("GITHUB_OUTPUT")}")
+            commandLine(
+                "sh",
+                "-c",
+                "echo MOD_VERSION=${project.extra["mod_version"]} >> ${System.getenv("GITHUB_OUTPUT")}"
+            )
         } else {
             commandLine("echo", "MOD_VERSION=${project.extra["mod_version"]}")
         }
     }
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("sh", "-c", "echo MINECRAFT_VERSION=${project.extra["minecraft_version"]} >> ${System.getenv("GITHUB_OUTPUT")}")
+            commandLine(
+                "sh",
+                "-c",
+                "echo MINECRAFT_VERSION=${project.extra["minecraft_version"]} >> ${System.getenv("GITHUB_OUTPUT")}"
+            )
         } else {
             commandLine("echo", "MINECRAFT_VERSION=${project.extra["minecraft_version"]}")
         }
     }
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("sh", "-c", "echo JAVA_VERSION=${project.extra["java_version"]} >> ${System.getenv("GITHUB_OUTPUT")}")
+            commandLine(
+                "sh",
+                "-c",
+                "echo JAVA_VERSION=${project.extra["java_version"]} >> ${System.getenv("GITHUB_OUTPUT")}"
+            )
         } else {
             commandLine("echo", "JAVA_VERSION=${project.extra["java_version"]}")
         }

@@ -44,6 +44,8 @@ data class Coordinates(
 data class QuantumChestReaderResponse(
     val quantumChestReaderId: String,
     val quantumChestReaderCoordinates: Coordinates,
+    val primaryInventoryCoordinates: Coordinates?,
+    val secondaryInventoryCoordinates: Coordinates?,
     val scannedContent: List<QuantumChestReaderScannedContent>
 )
 
@@ -76,43 +78,59 @@ private fun getInventoryContents(inventory: Inventory): List<QuantumChestReaderS
         .toList()
 }
 
-private fun getInventoryEntity(server: MinecraftServer, x: Int, y: Int, z: Int): Inventory? {
-    // Check the block pos
-    val potentialInventoryPos = BlockPos(x, y , z)
+fun getInventoryEntityFromScannerPos(
+    server: MinecraftServer,
+    qantumChestBlockPos: BlockPos
+): Pair<Inventory?, Pair<Coordinates, Coordinates?>> {
+    // Check the block pos above the scanner
+    val potentialInventoryPos = BlockPos(qantumChestBlockPos.x, qantumChestBlockPos.y + 1, qantumChestBlockPos.z)
+
     // Go over the chunk to also handle unloaded chunks
     val chunkPos = ChunkPos(potentialInventoryPos)
     val chunk = server.getWorld(World.OVERWORLD)?.getChunk(chunkPos.x, chunkPos.z)
 
-    // Check if we have a chunk. TBH I don't know when this could happen but the types tell me it could
+    // Check if we have a chunk
     if (chunk != null) {
         // Get our potential chest block entity
         val blockEntity = chunk.getBlockEntity(potentialInventoryPos)
 
         // Check if we have a entity with an inventory
         if (blockEntity is ChestBlockEntity) {
-            // Handle double chests by determine the other chest half
+            // Handle double chests by determining the other chest half
             val facing = ChestBlock.getFacing(blockEntity.cachedState)
             val potentialDoublePos = potentialInventoryPos.offset(facing)
             // Get it again from the chunk for unloaded chunks
             val potentialDoubleBlockEntity = chunk.getBlockEntity(potentialDoublePos)
 
-            // Check if we have a inventory again and if we are facing correctly
+            // Check if we have an inventory again and if we are facing correctly
             if (potentialDoubleBlockEntity is ChestBlockEntity && ChestBlock.getFacing(potentialDoubleBlockEntity.cachedState) == facing.opposite) {
-                return DoubleInventory(blockEntity, potentialDoubleBlockEntity)
+                val doubleInventory = DoubleInventory(blockEntity, potentialDoubleBlockEntity)
+                return Pair(
+                    doubleInventory,
+                    Pair(
+                        Coordinates(potentialInventoryPos.x, potentialInventoryPos.y, potentialInventoryPos.z),
+                        Coordinates(potentialDoublePos.x, potentialDoublePos.y, potentialDoublePos.z)
+                    )
+                )
             }
         }
 
         // Handle single chests
         if (blockEntity is Inventory) {
-            return blockEntity
+            return Pair(
+                blockEntity,
+                Pair(Coordinates(potentialInventoryPos.x, potentialInventoryPos.y, potentialInventoryPos.z), null)
+            )
         }
     }
 
-    // Nothing found or checks failed for whatever return null
-    return null
+    // Nothing found or checks failed, return null for inventory and only the first position
+    return Pair(
+        null,
+        Pair(Coordinates(potentialInventoryPos.x, potentialInventoryPos.y, potentialInventoryPos.z), null)
+    )
 }
 
-// TODO: handle pos better
 @OptIn(DelicateCoroutinesApi::class)
 fun initWebServer(port: Int, server: MinecraftServer) {
     // Use GlobalScope.launch to not block the main thread
@@ -124,19 +142,21 @@ fun initWebServer(port: Int, server: MinecraftServer) {
             }
             routing {
                 get("/quantum-chest-reader/all") {
-                    // TODO: reuse function from other endpoint
                     // Get the server state to access our saved nbt data
                     val serverState = ServerState.getServerState(server)
                     val quantumChestReaderData = serverState.quantumChestReaderData
 
-                    // construct a empty list of the data class we want to return
+                    // construct an empty list of the data class we want to return
                     val quantumChestReaderResponses = mutableListOf<QuantumChestReaderResponse>()
 
                     // Read and loop over our saved data
                     for ((quantumChestReaderId, coordinates) in quantumChestReaderData) {
                         val (x, y, z) = coordinates
                         // See if we have an inventory at the pos
-                        val inventoryEntity = getInventoryEntity(server, x, y + 1, z)
+                        val (inventoryEntity, blockPositions) = getInventoryEntityFromScannerPos(
+                            server,
+                            BlockPos(x, y, z)
+                        )
 
                         if (inventoryEntity != null) {
                             // If we have one scan the content
@@ -145,7 +165,11 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                             // Add it to the return list
                             quantumChestReaderResponses.add(
                                 QuantumChestReaderResponse(
-                                    quantumChestReaderId, Coordinates(x, y, z), scannedContent
+                                    quantumChestReaderId,
+                                    Coordinates(x, y, z),
+                                    blockPositions.first,
+                                    blockPositions.second,
+                                    scannedContent
                                 )
                             )
                         }
@@ -162,7 +186,10 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                     // Validate the param
                     if (quantumChestReaderId == null) {
                         // If validation fails return an error
-                        call.respond(HttpStatusCode.BadRequest, ErrorResponse("id-parameter-not-provided", "ID parameter not provided"))
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ErrorResponse("id-parameter-not-provided", "ID parameter not provided")
+                        )
                     } else {
                         // Read the saved nbt data
                         val serverState = ServerState.getServerState(server)
@@ -176,25 +203,34 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                                 )
                             )
                         } else {
-                            // See comments from above. This should be reused, but works for now and i want to do testing
+                            // See comments from above. This should be reused, but works for now and I want to do testing
                             val (x, y, z) = quantumChestReaderData
-                            val inventoryEntity = getInventoryEntity(server, x, y + 1, z)
+                            val (inventoryEntity, blockPositions) = getInventoryEntityFromScannerPos(
+                                server,
+                                BlockPos(x, y, z)
+                            )
 
                             if (inventoryEntity != null) {
                                 val scannedContent = getInventoryContents(inventoryEntity)
                                 call.respond(
                                     QuantumChestReaderResponse(
-                                        quantumChestReaderId, Coordinates(x, y, z), scannedContent
+                                        quantumChestReaderId,
+                                        Coordinates(x, y, z),
+                                        blockPositions.first,
+                                        blockPositions.second,
+                                        scannedContent
                                     )
                                 )
                             } else {
-                                // Return error if we don't find a inventory entity above the provided position
-                                SortSavvy.LOGGER.info("No inventory found at x=$x y=${y + 1} z=$z")
+                                // Return error if we don't find an inventory entity above the provided position
+                                val msg =
+                                    "No inventory found at x=${blockPositions.first.x} y=${blockPositions.first.y} z=${blockPositions.first.z}"
+                                SortSavvy.LOGGER.info(msg)
 
                                 call.respond(
                                     HttpStatusCode.NotFound,
                                     ErrorResponse(
-                                        "no-inventory-found", "No inventory found at x=$x y=${y + 1} z=$z", Coordinates(x, y, z)
+                                        "no-inventory-found", msg, blockPositions.first
                                     )
                                 )
                             }
