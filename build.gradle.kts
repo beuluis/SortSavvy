@@ -74,21 +74,21 @@ tasks {
 
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("echo", "MOD_VERSION=${project.extra["mod_version"]}", ">>", System.getenv("GITHUB_OUTPUT"))
+            commandLine("sh", "-c", "echo MOD_VERSION=${project.extra["mod_version"]} >> ${System.getenv("GITHUB_OUTPUT") ?: "out.txt"}")
         } else {
             commandLine("echo", "MOD_VERSION=${project.extra["mod_version"]}")
         }
     }
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("echo", "MINECRAFT_VERSION=${project.extra["minecraft_version"]}", ">>", System.getenv("GITHUB_OUTPUT"))
+            commandLine("sh", "-c", "echo MINECRAFT_VERSION=${project.extra["minecraft_version"]} >> ${System.getenv("GITHUB_OUTPUT") ?: "out.txt"}")
         } else {
             commandLine("echo", "MINECRAFT_VERSION=${project.extra["minecraft_version"]}")
         }
     }
     exec {
         if (System.getenv("GITHUB_OUTPUT") != null) {
-            commandLine("echo", "JAVA_VERSION=${project.extra["java_version"]}", ">>", System.getenv("GITHUB_OUTPUT"))
+            commandLine("sh", "-c", "echo JAVA_VERSION=${project.extra["java_version"]} >> ${System.getenv("GITHUB_OUTPUT") ?: "out.txt"}")
         } else {
             commandLine("echo", "JAVA_VERSION=${project.extra["java_version"]}")
         }
