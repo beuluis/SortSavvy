@@ -112,8 +112,7 @@ private fun getInventoryEntity(server: MinecraftServer, x: Int, y: Int, z: Int):
     return null
 }
 
-
-
+// TODO: handle pos better
 @OptIn(DelicateCoroutinesApi::class)
 fun initWebServer(port: Int, server: MinecraftServer) {
     // Use GlobalScope.launch to not block the main thread
@@ -179,7 +178,7 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                         } else {
                             // See comments from above. This should be reused, but works for now and i want to do testing
                             val (x, y, z) = quantumChestReaderData
-                            val inventoryEntity = getInventoryEntity(server, x, y, z)
+                            val inventoryEntity = getInventoryEntity(server, x, y + 1, z)
 
                             if (inventoryEntity != null) {
                                 val scannedContent = getInventoryContents(inventoryEntity)

@@ -50,6 +50,8 @@ TBD
 
 Port for now `8082`
 
+![APIExample](images/ApiScreenshot.png)
+
 ### Authentication
 
 All endpoints need to be called with a bearer token.
