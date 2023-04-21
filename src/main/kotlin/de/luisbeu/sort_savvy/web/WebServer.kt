@@ -15,7 +15,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
-import net.minecraft.enchantment.Enchantment
 import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.nbt.NbtElement
