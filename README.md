@@ -44,7 +44,7 @@ Download the jar file from CurseForge or install it directly in the launcher.
 
 #### Crafting
 
-TBD
+![QuantumChestReaderRecipe](images/QuantumChestReaderRecipe.png)
 
 ## API
 
@@ -163,7 +163,6 @@ interface Coordinates {
 
 ## TODO
 
-- [ ] Add crafting recipes
 - [ ] Add filter organize block
 - [ ] Add command to rescan all placed QuantumChestReaders
 - [ ] Add support for other dimensions
