@@ -38,6 +38,6 @@ tasks {
         withSourcesJar();
     };
     exec {
-        commandLine ("echo", "##[set-output name=version;]${project.version}");
+        commandLine ("echo", "echo \"version=${project.version}\" >> \$GITHUB_OUTPUT");
     };
 }
