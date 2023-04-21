@@ -7,6 +7,6 @@ import net.minecraft.server.MinecraftServer
 class ServerStartingHandler : ServerLifecycleEvents.ServerStarting {
     override fun onServerStarting(server: MinecraftServer) {
         // Initialize Web Server
-        initWebServer(8082, server)
+        initWebServer(server)
     }
 }

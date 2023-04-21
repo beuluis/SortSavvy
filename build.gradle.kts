@@ -10,11 +10,14 @@ base {
 version = project.extra["mod_version"] as String
 group = project.extra["maven_group"] as String
 
-repositories {}
+repositories {
+    maven("https://maven.wispforest.io")
+}
 
 dependencies {
     minecraft("com.mojang", "minecraft", project.extra["minecraft_version"] as String)
     mappings("net.fabricmc", "yarn", project.extra["yarn_mappings"] as String, null, "v2")
+    annotationProcessor("io.wispforest:owo-lib:${project.extra["owo_version"]}")
     modImplementation("net.fabricmc", "fabric-loader", project.extra["loader_version"] as String)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", project.extra["fabric_version"] as String)
     modImplementation(
@@ -22,10 +25,13 @@ dependencies {
         "fabric-language-kotlin",
         project.extra["fabric_language_kotlin_version"] as String
     )
-    implementation("io.ktor:ktor-server-core-jvm:2.2.4")
-    implementation("io.ktor:ktor-server-netty-jvm:2.2.4")
-    implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
-    implementation("io.ktor:ktor-serialization-gson:2.2.4")
+    modImplementation("io.wispforest:owo-lib:${project.extra["owo_version"]}")
+    implementation("io.ktor:ktor-server-core-jvm:${project.extra["ktor_version"]}")
+    implementation("io.ktor:ktor-server-netty-jvm:${project.extra["ktor_version"]}")
+    implementation("io.ktor:ktor-server-content-negotiation:${project.extra["ktor_version"]}")
+    implementation("io.ktor:ktor-serialization-gson:${project.extra["ktor_version"]}")
+    implementation("io.ktor:ktor-server-auth:${project.extra["ktor_version"]}")
+    include("io.wispforest:owo-sentinel:${project.extra["owo_version"]}")
 }
 
 tasks {

@@ -6,6 +6,7 @@ import de.luisbeu.sort_savvy.network.QuantumChestReaderScreenHandler
 import de.luisbeu.sort_savvy.events.ServerStartingHandler
 import de.luisbeu.sort_savvy.network.QuantumChestReaderSavedNetworkHandler
 import de.luisbeu.sort_savvy.util.SortSavvyConstants
+import de.luisbeu.sort_savvy.config.SortSavvyConfig
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger
 object SortSavvy : ModInitializer {
     // Initialize the logger here to have access everywhere
     val LOGGER: Logger = LogManager.getLogger(SortSavvyConstants.MOD_NAME)
+    val CONFIG: SortSavvyConfig = SortSavvyConfig.createAndLoad()
 
     // Blocks and Block Entities
     private val quantumChestReaderBlock = Registry.register(
