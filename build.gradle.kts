@@ -1,6 +1,7 @@
 plugins {
     id("fabric-loom")
     kotlin("jvm").version(System.getProperty("kotlin_version"))
+    kotlin("kapt").version(System.getProperty("kotlin_version"))
 }
 
 base {
@@ -17,7 +18,7 @@ repositories {
 dependencies {
     minecraft("com.mojang", "minecraft", project.extra["minecraft_version"] as String)
     mappings("net.fabricmc", "yarn", project.extra["yarn_mappings"] as String, null, "v2")
-    annotationProcessor("io.wispforest:owo-lib:${project.extra["owo_version"]}")
+    kapt("io.wispforest", "owo-lib", project.extra["owo_version"] as String)
     modImplementation("net.fabricmc", "fabric-loader", project.extra["loader_version"] as String)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", project.extra["fabric_version"] as String)
     modImplementation(
@@ -25,13 +26,13 @@ dependencies {
         "fabric-language-kotlin",
         project.extra["fabric_language_kotlin_version"] as String
     )
-    modImplementation("io.wispforest:owo-lib:${project.extra["owo_version"]}")
-    implementation("io.ktor:ktor-server-core-jvm:${project.extra["ktor_version"]}")
-    implementation("io.ktor:ktor-server-netty-jvm:${project.extra["ktor_version"]}")
-    implementation("io.ktor:ktor-server-content-negotiation:${project.extra["ktor_version"]}")
-    implementation("io.ktor:ktor-serialization-gson:${project.extra["ktor_version"]}")
-    implementation("io.ktor:ktor-server-auth:${project.extra["ktor_version"]}")
-    include("io.wispforest:owo-sentinel:${project.extra["owo_version"]}")
+    modImplementation("io.wispforest", "owo-lib", project.extra["owo_version"] as String)
+    implementation("io.ktor", "ktor-server-core-jvm", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-netty-jvm", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-content-negotiation", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-serialization-gson", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-auth", project.extra["ktor_version"] as String)
+    include("io.wispforest", "owo-sentinel", project.extra["owo_version"] as String)
 }
 
 tasks {

@@ -145,7 +145,7 @@ fun initWebServer(server: MinecraftServer) {
                 // Define a bearer token authentication provider
                 bearer {
                     authenticate { tokenCredential ->
-                        if (tokenCredential.token == "TOKEN") {
+                        if (tokenCredential.token == "TEST") {
                             UserIdPrincipal("user")
                         } else {
                             null
