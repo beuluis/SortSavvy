@@ -166,7 +166,6 @@ interface Coordinates {
 - [ ] Add filter organize block
 - [ ] Add command to rescan all placed QuantumChestReaders
 - [ ] Add support for other dimensions
-- [ ] Update textures a bit
 
 <!-- CONTRIBUTING -->
 

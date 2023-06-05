@@ -136,7 +136,7 @@ fun getInventoryEntityFromScannerPos(
 fun initWebServer(server: MinecraftServer) {
     // Use GlobalScope.launch to not block the main thread
     GlobalScope.launch {
-        embeddedServer(Netty, 1234) {
+        embeddedServer(Netty, SortSavvy.CONFIG.webserverPort) {
             install(ContentNegotiation) {
                 // Use GSON to handle JSON
                 gson()
@@ -145,7 +145,7 @@ fun initWebServer(server: MinecraftServer) {
                 // Define a bearer token authentication provider
                 bearer {
                     authenticate { tokenCredential ->
-                        if (tokenCredential.token == "TEST") {
+                        if (tokenCredential.token == SortSavvy.CONFIG.webserverBearerToken) {
                             UserIdPrincipal("user")
                         } else {
                             null
