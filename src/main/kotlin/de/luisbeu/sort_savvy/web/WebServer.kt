@@ -10,6 +10,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.serialization.gson.*
+import io.ktor.server.auth.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -132,87 +133,53 @@ fun getInventoryEntityFromScannerPos(
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-fun initWebServer(port: Int, server: MinecraftServer) {
+fun initWebServer(server: MinecraftServer) {
     // Use GlobalScope.launch to not block the main thread
     GlobalScope.launch {
-        embeddedServer(Netty, port) {
+        embeddedServer(Netty, SortSavvy.CONFIG.webserverPort) {
             install(ContentNegotiation) {
                 // Use GSON to handle JSON
                 gson()
             }
-            routing {
-                get("/quantum-chest-reader/all") {
-                    // Get the server state to access our saved nbt data
-                    val serverState = ServerState.getServerState(server)
-                    val quantumChestReaderData = serverState.quantumChestReaderData
-
-                    // construct an empty list of the data class we want to return
-                    val quantumChestReaderResponses = mutableListOf<QuantumChestReaderResponse>()
-
-                    // Read and loop over our saved data
-                    for ((quantumChestReaderId, coordinates) in quantumChestReaderData) {
-                        val (x, y, z) = coordinates
-                        // See if we have an inventory at the pos
-                        val (inventoryEntity, blockPositions) = getInventoryEntityFromScannerPos(
-                            server,
-                            BlockPos(x, y, z)
-                        )
-
-                        if (inventoryEntity != null) {
-                            // If we have one scan the content
-                            val scannedContent = getInventoryContents(inventoryEntity)
-
-                            // Add it to the return list
-                            quantumChestReaderResponses.add(
-                                QuantumChestReaderResponse(
-                                    quantumChestReaderId,
-                                    Coordinates(x, y, z),
-                                    blockPositions.first,
-                                    blockPositions.second,
-                                    scannedContent
-                                )
-                            )
+            install(Authentication) {
+                // Define a bearer token authentication provider
+                bearer {
+                    authenticate { tokenCredential ->
+                        if (tokenCredential.token == SortSavvy.CONFIG.webserverBearerToken) {
+                            UserIdPrincipal("user")
+                        } else {
+                            null
                         }
                     }
 
-                    // Response with what ever we have
-                    call.respond(quantumChestReaderResponses)
                 }
+            }
 
-                get("/quantum-chest-reader/{quantumChestReaderId}") {
-                    // Get the param
-                    val quantumChestReaderId = call.parameters["quantumChestReaderId"]
-
-                    // Validate the param
-                    if (quantumChestReaderId == null) {
-                        // If validation fails return an error
-                        call.respond(
-                            HttpStatusCode.BadRequest,
-                            ErrorResponse("id-parameter-not-provided", "ID parameter not provided")
-                        )
-                    } else {
-                        // Read the saved nbt data
+            routing {
+                authenticate {
+                    get("/quantum-chest-reader/all") {
+                        // Get the server state to access our saved nbt data
                         val serverState = ServerState.getServerState(server)
-                        // Try to get the data associated with our id
-                        val quantumChestReaderData = serverState.quantumChestReaderData[quantumChestReaderId]
-                        if (quantumChestReaderData == null) {
-                            // Return error if no associated data is found
-                            call.respond(
-                                HttpStatusCode.NotFound, ErrorResponse(
-                                    "id-no-found", "QuantumChestReader with ID $quantumChestReaderId not found"
-                                )
-                            )
-                        } else {
-                            // See comments from above. This should be reused, but works for now and I want to do testing
-                            val (x, y, z) = quantumChestReaderData
+                        val quantumChestReaderData = serverState.quantumChestReaderData
+
+                        // construct an empty list of the data class we want to return
+                        val quantumChestReaderResponses = mutableListOf<QuantumChestReaderResponse>()
+
+                        // Read and loop over our saved data
+                        for ((quantumChestReaderId, coordinates) in quantumChestReaderData) {
+                            val (x, y, z) = coordinates
+                            // See if we have an inventory at the pos
                             val (inventoryEntity, blockPositions) = getInventoryEntityFromScannerPos(
                                 server,
                                 BlockPos(x, y, z)
                             )
 
                             if (inventoryEntity != null) {
+                                // If we have one scan the content
                                 val scannedContent = getInventoryContents(inventoryEntity)
-                                call.respond(
+
+                                // Add it to the return list
+                                quantumChestReaderResponses.add(
                                     QuantumChestReaderResponse(
                                         quantumChestReaderId,
                                         Coordinates(x, y, z),
@@ -221,18 +188,68 @@ fun initWebServer(port: Int, server: MinecraftServer) {
                                         scannedContent
                                     )
                                 )
-                            } else {
-                                // Return error if we don't find an inventory entity above the provided position
-                                val msg =
-                                    "No inventory found at x=${blockPositions.first.x} y=${blockPositions.first.y} z=${blockPositions.first.z}"
-                                SortSavvy.LOGGER.info(msg)
+                            }
+                        }
 
+                        // Response with what ever we have
+                        call.respond(quantumChestReaderResponses)
+                    }
+
+                    get("/quantum-chest-reader/{quantumChestReaderId}") {
+                        // Get the param
+                        val quantumChestReaderId = call.parameters["quantumChestReaderId"]
+
+                        // Validate the param
+                        if (quantumChestReaderId == null) {
+                            // If validation fails return an error
+                            call.respond(
+                                HttpStatusCode.BadRequest,
+                                ErrorResponse("id-parameter-not-provided", "ID parameter not provided")
+                            )
+                        } else {
+                            // Read the saved nbt data
+                            val serverState = ServerState.getServerState(server)
+                            // Try to get the data associated with our id
+                            val quantumChestReaderData = serverState.quantumChestReaderData[quantumChestReaderId]
+                            if (quantumChestReaderData == null) {
+                                // Return error if no associated data is found
                                 call.respond(
-                                    HttpStatusCode.NotFound,
-                                    ErrorResponse(
-                                        "no-inventory-found", msg, blockPositions.first
+                                    HttpStatusCode.NotFound, ErrorResponse(
+                                        "id-no-found", "QuantumChestReader with ID $quantumChestReaderId not found"
                                     )
                                 )
+                            } else {
+                                // See comments from above. This should be reused, but works for now and I want to do testing
+                                val (x, y, z) = quantumChestReaderData
+                                val (inventoryEntity, blockPositions) = getInventoryEntityFromScannerPos(
+                                    server,
+                                    BlockPos(x, y, z)
+                                )
+
+                                if (inventoryEntity != null) {
+                                    val scannedContent = getInventoryContents(inventoryEntity)
+                                    call.respond(
+                                        QuantumChestReaderResponse(
+                                            quantumChestReaderId,
+                                            Coordinates(x, y, z),
+                                            blockPositions.first,
+                                            blockPositions.second,
+                                            scannedContent
+                                        )
+                                    )
+                                } else {
+                                    // Return error if we don't find an inventory entity above the provided position
+                                    val msg =
+                                        "No inventory found at x=${blockPositions.first.x} y=${blockPositions.first.y} z=${blockPositions.first.z}"
+                                    SortSavvy.LOGGER.info(msg)
+
+                                    call.respond(
+                                        HttpStatusCode.NotFound,
+                                        ErrorResponse(
+                                            "no-inventory-found", msg, blockPositions.first
+                                        )
+                                    )
+                                }
                             }
                         }
                     }

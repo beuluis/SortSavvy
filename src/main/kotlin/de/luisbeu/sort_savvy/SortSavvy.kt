@@ -1,5 +1,6 @@
 package de.luisbeu.sort_savvy
 
+import SortSavvyConfig
 import de.luisbeu.sort_savvy.blocks.QuantumChestReader
 import de.luisbeu.sort_savvy.entities.QuantumChestReaderEntity
 import de.luisbeu.sort_savvy.network.QuantumChestReaderScreenHandler
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger
 object SortSavvy : ModInitializer {
     // Initialize the logger here to have access everywhere
     val LOGGER: Logger = LogManager.getLogger(SortSavvyConstants.MOD_NAME)
+    val CONFIG = SortSavvyConfig().getConfig()
 
     // Blocks and Block Entities
     private val quantumChestReaderBlock = Registry.register(

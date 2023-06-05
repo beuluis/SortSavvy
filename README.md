@@ -166,11 +166,6 @@ interface Coordinates {
 - [ ] Add filter organize block
 - [ ] Add command to rescan all placed QuantumChestReaders
 - [ ] Add support for other dimensions
-- [ ] Add auth token for webserver
-- [ ] Add config
-- [ ] Make port configurable
-- [ ] Make auth token configurable
-- [ ] Update textures a bit
 
 <!-- CONTRIBUTING -->
 

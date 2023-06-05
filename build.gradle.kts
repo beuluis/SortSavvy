@@ -22,10 +22,11 @@ dependencies {
         "fabric-language-kotlin",
         project.extra["fabric_language_kotlin_version"] as String
     )
-    implementation("io.ktor:ktor-server-core-jvm:2.2.4")
-    implementation("io.ktor:ktor-server-netty-jvm:2.2.4")
-    implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
-    implementation("io.ktor:ktor-serialization-gson:2.2.4")
+    implementation("io.ktor", "ktor-server-core-jvm", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-netty-jvm", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-content-negotiation", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-serialization-gson", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-auth", project.extra["ktor_version"] as String)
 }
 
 tasks {
