@@ -22,7 +22,6 @@ import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-
 object SortSavvy : ModInitializer {
     // Initialize the logger here to have access everywhere
     val LOGGER: Logger = LogManager.getLogger(SortSavvyConstants.MOD_NAME)

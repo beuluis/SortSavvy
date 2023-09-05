@@ -29,7 +29,7 @@ jobs:
         with:
           file_path: build/libs/sort_savvy-${{ steps.gradlew-build.outputs.MOD_VERSION }}.jar
           game_endpoint: minecraft
-          relations: fabric-api:requiredDependency,fabric-language-kotlin:requiredDependency
+          relations: fabric-api:requiredDependency,fabric-language-kotlin:requiredDependency,create-fabric:optionalDependency
           game_versions: Minecraft ${{ steps.split.outputs._0 }}.${{ steps.split.outputs._1 }}:${{ steps.gradlew-build.outputs.MINECRAFT_VERSION }},Java ${{ steps.gradlew-build.outputs.JAVA_VERSION }},Fabric
           project_id: 852994
           token: ${{ secrets.CF_API_TOKEN }}

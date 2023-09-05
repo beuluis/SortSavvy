@@ -36,5 +36,8 @@
     "fabric-language-kotlin": ">=${fabric_language_kotlin}",
     "minecraft": ">=${minecraft}",
     "java": ">=${java}"
+  },
+  "recommends": {
+    "create": ">=${create}"
   }
 }
