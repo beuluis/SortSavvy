@@ -3,6 +3,7 @@ package de.luisbeu.sort_savvy.web
 import com.simibubi.create.AllBlocks
 import com.simibubi.create.content.logistics.funnel.FunnelBlockEntity
 import com.simibubi.create.content.logistics.funnel.FunnelFilterSlotPositioning
+import com.simibubi.create.foundation.blockEntity.SmartBlockEntity
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour
 import de.luisbeu.sort_savvy.SortSavvy
@@ -173,18 +174,10 @@ fun initWebServer(server: MinecraftServer) {
 
                         // Check if we have a chunk
                         if (chunk != null) {
-                            // BlockEntityBehaviour.get<FilteringBehaviour>(world, pos, FilteringBehaviour.TYPE);
-                            val blockEntity = chunk.getBlockEntity(blockPos)
-                            if (chunk.world.getBlockState(blockPos).block == AllBlocks.BRASS_FUNNEL.get()) {
-                                val brass = blockEntity as FunnelBlockEntity
-                                val filterStack = ItemStack(Items.FLINT) // Example filter item
-                                val filteringBehaviour = FilteringBehaviour(blockEntity, FunnelFilterSlotPositioning())
-                                filteringBehaviour.filter = filterStack;
-                                brass.addBehaviours(listOf(filteringBehaviour)) // Set the filter item in the filter block
-
-                                brass.markDirty()
-                                SortSavvy.LOGGER.info("Hello this is this line")
-                            }
+                            val blockEntity = chunk.getBlockEntity(blockPos) as SmartBlockEntity
+                            val filterStack = ItemStack(Items.FLINT) // Example filter item
+                            val behaviour = blockEntity.getBehaviour(FilteringBehaviour.TYPE)
+                            behaviour.filter = filterStack
                             chunk.world.updateNeighbors(blockPos, chunk.world.getBlockState(blockPos).block)
                         }
                         call.respond("run!")
