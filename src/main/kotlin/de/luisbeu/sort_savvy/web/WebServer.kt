@@ -1,16 +1,21 @@
 package de.luisbeu.sort_savvy.web
 
+import com.simibubi.create.AllBlocks
+import com.simibubi.create.content.logistics.funnel.FunnelBlockEntity
+import com.simibubi.create.content.logistics.funnel.FunnelFilterSlotPositioning
+import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.util.ServerState
 import io.ktor.http.*
+import io.ktor.serialization.gson.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.serialization.gson.*
-import io.ktor.server.auth.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,6 +23,8 @@ import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.nbt.NbtElement
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
@@ -157,6 +164,31 @@ fun initWebServer(server: MinecraftServer) {
 
             routing {
                 authenticate {
+                    get("/hi") {
+                        val blockPos = BlockPos(0, 64, 0)
+
+                        // Go over the chunk to also handle unloaded chunks
+                        val chunkPos = ChunkPos(blockPos)
+                        val chunk = server.getWorld(World.OVERWORLD)?.getChunk(chunkPos.x, chunkPos.z)
+
+                        // Check if we have a chunk
+                        if (chunk != null) {
+                            // BlockEntityBehaviour.get<FilteringBehaviour>(world, pos, FilteringBehaviour.TYPE);
+                            val blockEntity = chunk.getBlockEntity(blockPos)
+                            if (chunk.world.getBlockState(blockPos).block == AllBlocks.BRASS_FUNNEL.get()) {
+                                val brass = blockEntity as FunnelBlockEntity
+                                val filterStack = ItemStack(Items.FLINT) // Example filter item
+                                val filteringBehaviour = FilteringBehaviour(blockEntity, FunnelFilterSlotPositioning())
+                                filteringBehaviour.filter = filterStack;
+                                brass.addBehaviours(listOf(filteringBehaviour)) // Set the filter item in the filter block
+
+                                brass.markDirty()
+                                SortSavvy.LOGGER.info("Hello this is this line")
+                            }
+                            chunk.world.updateNeighbors(blockPos, chunk.world.getBlockState(blockPos).block)
+                        }
+                        call.respond("run!")
+                    }
                     get("/quantum-chest-reader/all") {
                         // Get the server state to access our saved nbt data
                         val serverState = ServerState.getServerState(server)
