@@ -1,7 +1,7 @@
 package de.luisbeu.sort_savvy.screens
 
 import com.mojang.blaze3d.systems.RenderSystem
-import de.luisbeu.sort_savvy.network.QuantumChestReaderScreenHandler
+import de.luisbeu.sort_savvy.network.QuantumInventoryReaderScreenHandler
 import de.luisbeu.sort_savvy.util.SortSavvyConstants
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.ButtonWidget
@@ -15,12 +15,12 @@ import net.minecraft.util.Identifier
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
 
-class QuantumChestReaderScreen(
+class QuantumInventoryReaderScreen(
     handler: ScreenHandler, playerInventory: PlayerInventory, title: Text
 ) : HandledScreen<ScreenHandler>(handler, playerInventory, title) {
 
     companion object {
-        val texture = Identifier(SortSavvyConstants.MOD_ID, "textures/gui/container/quantum_chest_reader.png")
+        val texture = Identifier(SortSavvyConstants.MOD_ID, "textures/gui/container/quantum_inventory_reader.png")
     }
 
     // Add all ui attributes to make them available
@@ -33,7 +33,7 @@ class QuantumChestReaderScreen(
     // It`s important to do it in init and not during the constructor. Here some attributes are initialized that we need to access
     override fun init() {
         // Crash when the screen gets called by the wrong handler
-        if (handler !is QuantumChestReaderScreenHandler) {
+        if (handler !is QuantumInventoryReaderScreenHandler) {
             throw IllegalStateException("Invalid screen handler type")
         }
 
@@ -64,7 +64,7 @@ class QuantumChestReaderScreen(
             // Call the handler to get the buffered id
             Text.of("")
         )
-        textField.text = (handler as QuantumChestReaderScreenHandler).getQuantumChestReaderId()
+        textField.text = (handler as QuantumInventoryReaderScreenHandler).getQuantumInventoryReaderId()
         textField.setTextFieldFocused(true)
         // Register new ui element
         addDrawableChild(textField)
@@ -78,7 +78,7 @@ class QuantumChestReaderScreen(
             buttonText
         ) {
             // Update the handler with the new value
-            (handler as QuantumChestReaderScreenHandler).setQuantumChestReaderId(textField.text)
+            (handler as QuantumInventoryReaderScreenHandler).setQuantumInventoryReaderId(textField.text)
             // Close the screen
             close()
         }
@@ -142,16 +142,12 @@ class QuantumChestReaderScreen(
         val maxWidth = backgroundWidth - textRenderer.getWidth(overflowAppend) - 2 * padding
 
         var truncatedTitle = title.string
-        
-        // When the user is currently typing we use the field value as title
-        if (isDirty) {
-            truncatedTitle = textField.text
-        }
 
         // Cut the title if it should overflow
         if (textRenderer.getWidth(title.string) > maxWidth) {
             truncatedTitle = textRenderer.trimToWidth(title.string, maxWidth) + "..."
         }
+
         // Implement out own foreground objects. Don`t call super because we don`t want them here
         textRenderer.draw(matrices, truncatedTitle, titleX.toFloat(), titleY.toFloat(), Color.WHITE.rgb)
     }

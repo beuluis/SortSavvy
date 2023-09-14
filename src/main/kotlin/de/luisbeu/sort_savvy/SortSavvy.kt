@@ -1,11 +1,12 @@
 package de.luisbeu.sort_savvy
 
-import SortSavvyConfig
-import de.luisbeu.sort_savvy.blocks.QuantumChestReader
-import de.luisbeu.sort_savvy.entities.QuantumChestReaderEntity
-import de.luisbeu.sort_savvy.network.QuantumChestReaderScreenHandler
+import de.luisbeu.sort_savvy.config.SortSavvyConfig
+import de.luisbeu.sort_savvy.blocks.QuantumInventoryReader
+import de.luisbeu.sort_savvy.entities.QuantumInventoryReaderEntity
+import de.luisbeu.sort_savvy.network.QuantumInventoryReaderScreenHandler
 import de.luisbeu.sort_savvy.events.ServerStartingHandler
-import de.luisbeu.sort_savvy.network.QuantumChestReaderSavedNetworkHandler
+import de.luisbeu.sort_savvy.events.ServerStoppingHandler
+import de.luisbeu.sort_savvy.network.QuantumInventoryReaderSavedNetworkHandler
 import de.luisbeu.sort_savvy.util.SortSavvyConstants
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
@@ -25,51 +26,53 @@ import org.apache.logging.log4j.Logger
 object SortSavvy : ModInitializer {
     // Initialize the logger here to have access everywhere
     val LOGGER: Logger = LogManager.getLogger(SortSavvyConstants.MOD_NAME)
-    val CONFIG = SortSavvyConfig().getConfig()
 
     // Blocks and Block Entities
-    private val quantumChestReaderBlock = Registry.register(
-        Registry.BLOCK, SortSavvyConstants.quantumChestReaderId, QuantumChestReader()
+    private val quantumInventoryReaderBlock = Registry.register(
+        Registry.BLOCK, SortSavvyConstants.quantumInventoryReaderId, QuantumInventoryReader()
     )
 
-    val quantumChestReaderBlockEntityType: BlockEntityType<QuantumChestReaderEntity> = Registry.register(
+    val quantumInventoryReaderBlockEntityType: BlockEntityType<QuantumInventoryReaderEntity> = Registry.register(
         Registry.BLOCK_ENTITY_TYPE,
-        SortSavvyConstants.quantumChestReaderEntityId,
-        FabricBlockEntityTypeBuilder.create(::QuantumChestReaderEntity, quantumChestReaderBlock).build()
+        SortSavvyConstants.quantumInventoryReaderEntityId,
+        FabricBlockEntityTypeBuilder.create(::QuantumInventoryReaderEntity, quantumInventoryReaderBlock).build()
     )
 
     // Screen Handlers
-    var quantumChestReaderScreenHandlerType: ScreenHandlerType<QuantumChestReaderScreenHandler> =
-        ExtendedScreenHandlerType(::QuantumChestReaderScreenHandler)
+    var quantumInventoryReaderScreenHandlerType: ScreenHandlerType<QuantumInventoryReaderScreenHandler> =
+        ExtendedScreenHandlerType(::QuantumInventoryReaderScreenHandler)
 
     // Initialization
     override fun onInitialize() {
         // Register a handler for the server starting event
         ServerLifecycleEvents.SERVER_STARTING.register(ServerStartingHandler())
 
+        // Register a handler for the server stopping event
+        ServerLifecycleEvents.SERVER_STOPPING.register(ServerStoppingHandler())
+
 
         // Networking
         ServerPlayNetworking.registerGlobalReceiver(
-            SortSavvyConstants.quantumChestReaderSavedNetworkHandlerId, QuantumChestReaderSavedNetworkHandler()
+            SortSavvyConstants.quantumInventoryReaderSavedNetworkHandlerId, QuantumInventoryReaderSavedNetworkHandler()
         )
 
         // Item Group
         val itemGroup =
-            FabricItemGroupBuilder.create(SortSavvyConstants.itemGroupId).icon { ItemStack(quantumChestReaderBlock) }
+            FabricItemGroupBuilder.create(SortSavvyConstants.itemGroupId).icon { ItemStack(quantumInventoryReaderBlock) }
                 .build()
 
         // Block Items
         Registry.register(
             Registry.ITEM,
-            SortSavvyConstants.quantumChestReaderId,
-            BlockItem(quantumChestReaderBlock, Item.Settings().group(itemGroup))
+            SortSavvyConstants.quantumInventoryReaderId,
+            BlockItem(quantumInventoryReaderBlock, Item.Settings().group(itemGroup))
         )
 
         // Screen Handlers
-        quantumChestReaderScreenHandlerType = Registry.register(
+        quantumInventoryReaderScreenHandlerType = Registry.register(
             Registry.SCREEN_HANDLER,
-            SortSavvyConstants.quantumChestReaderScreenHandlerId,
-            quantumChestReaderScreenHandlerType
+            SortSavvyConstants.quantumInventoryReaderScreenHandlerId,
+            quantumInventoryReaderScreenHandlerType
         )
     }
 

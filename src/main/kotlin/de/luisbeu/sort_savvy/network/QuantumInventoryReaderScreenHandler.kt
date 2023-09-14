@@ -11,36 +11,36 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.util.math.BlockPos
 
-class QuantumChestReaderScreenHandler(
+class QuantumInventoryReaderScreenHandler(
     syncId: Int, playerInventory: PlayerInventory, buf: PacketByteBuf = PacketByteBufs.empty()
-) : ScreenHandler(SortSavvy.quantumChestReaderScreenHandlerType, syncId) {
+) : ScreenHandler(SortSavvy.quantumInventoryReaderScreenHandlerType, syncId) {
 
     // Set all the defaults
     private var pos = BlockPos.ORIGIN
-    private var quantumChestReaderId: String? = null
+    private var quantumInventoryReaderId: String? = null
 
     init {
         // We have different scenarios when the constructor is called. On register, we do not have a buffer when the handler gets returned by the entity we have one
         if (buf.readableBytes() > 0) {
             pos = buf.readBlockPos()
-            quantumChestReaderId = buf.readString()
+            quantumInventoryReaderId = buf.readString()
         }
     }
 
-    // Expose quantum chest reader id to not be able to modify it directly
-    fun getQuantumChestReaderId(): String? {
-        return quantumChestReaderId
+    // Expose quantum inventory reader id to not be able to modify it directly
+    fun getQuantumInventoryReaderId(): String? {
+        return quantumInventoryReaderId
     }
 
-    // Setter for quantum chest reader id to add some additional logic
-    fun setQuantumChestReaderId(quantumChestReaderId: String) {
+    // Setter for quantum inventory reader id to add some additional logic
+    fun setQuantumInventoryReaderId(quantumInventoryReaderId: String) {
         // Update class attribute
-        this.quantumChestReaderId = quantumChestReaderId
+        this.quantumInventoryReaderId = quantumInventoryReaderId
 
         // Send package to client
         ClientPlayNetworking.send(
-            SortSavvyConstants.quantumChestReaderSavedNetworkHandlerId,
-            PacketByteBufs.create().writeBlockPos(pos).writeString(quantumChestReaderId)
+            SortSavvyConstants.quantumInventoryReaderSavedNetworkHandlerId,
+            PacketByteBufs.create().writeBlockPos(pos).writeString(quantumInventoryReaderId)
         )
     }
 

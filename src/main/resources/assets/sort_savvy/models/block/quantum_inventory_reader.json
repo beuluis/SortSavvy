@@ -2,11 +2,11 @@
   "credit": "Made with Blockbench",
   "texture_size": [64, 64],
   "textures": {
-    "0": "sort_savvy:block/quantum_chest_reader/frame_texture",
-    "1": "sort_savvy:block/quantum_chest_reader/scanner_texture",
-    "2": "sort_savvy:block/quantum_chest_reader/inner_scanner_texture",
-    "3": "sort_savvy:block/quantum_chest_reader/cube_texture",
-    "particle": "sort_savvy:block/quantum_chest_reader/frame_texture"
+    "0": "sort_savvy:block/quantum_inventory_reader/frame_texture",
+    "1": "sort_savvy:block/quantum_inventory_reader/scanner_texture",
+    "2": "sort_savvy:block/quantum_inventory_reader/inner_scanner_texture",
+    "3": "sort_savvy:block/quantum_inventory_reader/cube_texture",
+    "particle": "sort_savvy:block/quantum_inventory_reader/frame_texture"
   },
   "elements": [
     {

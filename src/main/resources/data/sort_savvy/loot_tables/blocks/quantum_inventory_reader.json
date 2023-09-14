@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "sort_savvy:quantum_chest_reader"
+          "name": "sort_savvy:quantum_inventory_reader"
         }
       ]
     }

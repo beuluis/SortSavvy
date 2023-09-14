@@ -2,30 +2,36 @@ package de.luisbeu.sort_savvy.util
 
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.MinecraftServer
+import net.minecraft.util.math.Direction
 import net.minecraft.world.PersistentState
 import net.minecraft.world.World
 
 // TODO: add command to rescan blocks
-class ServerState : PersistentState() {
+data class PositionWithToScanDirection(val x: Int, val y: Int, val z: Int, val toScanDirection: Direction)
+
+class ServerState() : PersistentState() {
     // Add out data map as attribute
-    var quantumChestReaderData: Map<String, Triple<Int, Int, Int>> = mapOf()
+    var quantumInventoryReaderData: Map<String, PositionWithToScanDirection> = mapOf()
 
     // Convert the map to nbt data and return nbt. This functions get called before nbt gets write to the disk to inject the data we want to save
     override fun writeNbt(nbt: NbtCompound): NbtCompound {
-        val quantumChestReaderDataNbt = NbtCompound()
+        val quantumInventoryReaderDataNbt = NbtCompound()
 
         // Iterate over all entries and add them in the nbt
-        quantumChestReaderData.forEach { (key, triple) ->
-            val (x, y, z) = triple
+        quantumInventoryReaderData.forEach { (key, positionWithDirection) ->
             val posNbt = NbtCompound()
-            posNbt.putInt("x", x)
-            posNbt.putInt("y", y)
-            posNbt.putInt("z", z)
-            quantumChestReaderDataNbt.put(key, posNbt)
+
+            posNbt.putInt("x", positionWithDirection.x)
+            posNbt.putInt("y", positionWithDirection.y)
+            posNbt.putInt("z", positionWithDirection.z)
+
+            posNbt.putString("toScanDirection", positionWithDirection.toScanDirection.name) // Store direction as a string
+
+            quantumInventoryReaderDataNbt.put(key, posNbt)
         }
 
         // Write them to the final nbt
-        nbt.put("data", quantumChestReaderDataNbt)
+        nbt.put("quantumInventoryReaderData", quantumInventoryReaderDataNbt)
 
         return nbt
     }
@@ -34,16 +40,26 @@ class ServerState : PersistentState() {
         // This gets called when the data gets loaded. We translate the tags to out map attribute for easy code usage
         private fun createFromNbt(nbt: NbtCompound): ServerState {
             val serverState = ServerState()
-            val quantumChestReaderDataNbt = nbt.getCompound("data")
-            val quantumChestReaderData = mutableMapOf<String, Triple<Int, Int, Int>>()
-            quantumChestReaderDataNbt.keys.forEach { key ->
-                val posNbt = quantumChestReaderDataNbt.getCompound(key)
+
+            val quantumInventoryReaderDataNbt = nbt.getCompound("quantumInventoryReaderData")
+
+            val quantumInventoryReaderData = mutableMapOf<String, PositionWithToScanDirection>()
+
+            quantumInventoryReaderDataNbt.keys.forEach { key ->
+                val posNbt = quantumInventoryReaderDataNbt.getCompound(key)
+
                 val x = posNbt.getInt("x")
                 val y = posNbt.getInt("y")
                 val z = posNbt.getInt("z")
-                quantumChestReaderData[key] = Triple(x, y, z)
+
+                val toScanDirectionName = posNbt.getString("toScanDirection")
+                val toScanDirection = Direction.valueOf(toScanDirectionName) // Parse direction from string
+
+                quantumInventoryReaderData[key] = PositionWithToScanDirection(x, y, z, toScanDirection)
             }
-            serverState.quantumChestReaderData = quantumChestReaderData.toMap()
+
+            serverState.quantumInventoryReaderData = quantumInventoryReaderData.toMap()
+
             return serverState
         }
 

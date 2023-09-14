@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "sort_savvy:block/quantum_inventory_reader" }
+  }
+}

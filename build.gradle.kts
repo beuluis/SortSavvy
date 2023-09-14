@@ -52,6 +52,7 @@ dependencies {
     implementation("io.ktor", "ktor-server-content-negotiation", project.extra["ktor_version"] as String)
     implementation("io.ktor", "ktor-serialization-gson", project.extra["ktor_version"] as String)
     implementation("io.ktor", "ktor-server-auth", project.extra["ktor_version"] as String)
+    implementation("io.ktor", "ktor-server-status-pages", project.extra["ktor_version"] as String)
 }
 
 tasks {
