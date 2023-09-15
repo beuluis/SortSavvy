@@ -1,5 +1,6 @@
 package de.luisbeu.sort_savvy.api
 
+import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.api.plugins.configureAuthentication
 import de.luisbeu.sort_savvy.api.plugins.configureExceptions
 import de.luisbeu.sort_savvy.api.plugins.configureRouting
@@ -24,11 +25,13 @@ object WebServer {
         GlobalScope.launch {
             applicationEngine = embeddedServer(Netty, port = config.webserverPort, module = { module(server) })
             applicationEngine?.start(wait = true)
+            SortSavvy.LOGGER.info("Web Server started")
         }
     }
 
     fun stop() {
         applicationEngine?.stop(1000, 1000)
+        SortSavvy.LOGGER.info("Web Server stopped")
     }
 }
 

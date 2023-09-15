@@ -1,10 +1,9 @@
 package de.luisbeu.sort_savvy
 
-import de.luisbeu.sort_savvy.config.SortSavvyConfig
 import de.luisbeu.sort_savvy.blocks.QuantumInventoryReader
 import de.luisbeu.sort_savvy.entities.QuantumInventoryReaderEntity
+import de.luisbeu.sort_savvy.events.ServerStartedHandler
 import de.luisbeu.sort_savvy.network.QuantumInventoryReaderScreenHandler
-import de.luisbeu.sort_savvy.events.ServerStartingHandler
 import de.luisbeu.sort_savvy.events.ServerStoppingHandler
 import de.luisbeu.sort_savvy.network.QuantumInventoryReaderSavedNetworkHandler
 import de.luisbeu.sort_savvy.util.SortSavvyConstants
@@ -45,7 +44,7 @@ object SortSavvy : ModInitializer {
     // Initialization
     override fun onInitialize() {
         // Register a handler for the server starting event
-        ServerLifecycleEvents.SERVER_STARTING.register(ServerStartingHandler())
+        ServerLifecycleEvents.SERVER_STARTED.register(ServerStartedHandler())
 
         // Register a handler for the server stopping event
         ServerLifecycleEvents.SERVER_STOPPING.register(ServerStoppingHandler())
