@@ -42,7 +42,11 @@ dependencies {
     )
 
     // Optional dependencies
-    modCompileOnly("com.simibubi.create", "create-fabric-${project.extra["minecraft_version"] as String}", project.extra["create_version"] as String)
+    modCompileOnly(
+        "com.simibubi.create",
+        "create-fabric-${project.extra["minecraft_version"] as String}",
+        project.extra["create_version"] as String
+    )
 
     // Development only
     modLocalRuntime("com.terraformersmc", "modmenu", project.extra["modmenu_version"] as String)

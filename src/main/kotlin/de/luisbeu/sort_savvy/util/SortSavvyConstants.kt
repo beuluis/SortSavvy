@@ -11,6 +11,6 @@ object SortSavvyConstants {
     val itemGroupId = Identifier(MOD_ID, "item_group")
     val quantumInventoryReaderId = Identifier(MOD_ID, "quantum_inventory_reader")
     val quantumInventoryReaderEntityId = Identifier(MOD_ID, "quantum_inventory_reader_entity")
-    val quantumInventoryReaderScreenHandlerId = Identifier(MOD_ID, "quantum_inventory_reader_screen_handler")
-    val quantumInventoryReaderSavedNetworkHandlerId = Identifier(MOD_ID, "quantum_inventory_reader_saved_network_handler")
+    val idSetterScreenHandlerId = Identifier(MOD_ID, "id_setter_screen_handler")
+    val idSetterScreenSavedNetworkHandlerId = Identifier(MOD_ID, "id_setter_screen_saved_network_handler")
 }

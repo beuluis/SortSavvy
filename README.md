@@ -8,7 +8,7 @@
 <p align="center">
   <img src="src/main/resources/assets/sort_savvy/icon.png" alt="Logo" height="60">
 
-  <h3 align="center">SortSavvy</h3>
+<h3 align="center">SortSavvy</h3>
 
   <p align="center">
     A fabric mod to organize and have fun with sorting systems
@@ -26,7 +26,8 @@
 
 ## About The Project
 
-I wrote this mod for a server my friends and I play on. We want to build an awesome sorting system with some extended functionality.
+I wrote this mod for a server my friends and I play on. We want to build an awesome sorting system with some extended
+functionality.
 
 The current features are:
 
@@ -74,8 +75,8 @@ Returns [ErrorResponse](#errorresponse) with
 
 ```JSON
 {
-    "error": "id-parameter-not-provided",
-    "message": "ID parameter not provided"
+  "error": "id-parameter-not-provided",
+  "message": "ID parameter not provided"
 }
 ```
 
@@ -85,8 +86,8 @@ Returns [ErrorResponse](#errorresponse) with
 
 ```JSON
 {
-    "error": "id-no-found",
-    "message": "QuantumChestReader with ID $quantumChestReaderId not found"
+  "error": "id-no-found",
+  "message": "QuantumChestReader with ID $quantumChestReaderId not found"
 }
 ```
 
@@ -96,13 +97,13 @@ Returns [ErrorResponse](#errorresponse) with
 
 ```JSON
 {
-    "error": "no-inventory-found",
-    "message": "No inventory found at x=$x y=$y z=$z",
-    "context": {
-        "x": 12,
-        "y": 64,
-        "z": 12
-    }
+  "error": "no-inventory-found",
+  "message": "No inventory found at x=$x y=$y z=$z",
+  "context": {
+    "x": 12,
+    "y": 64,
+    "z": 12
+  }
 }
 ```
 
@@ -171,7 +172,8 @@ interface Coordinates {
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any
+contributions you make are **greatly appreciated**.
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -189,11 +191,19 @@ Luis Beu - me@luisbeu.de
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [contributors-shield]: https://img.shields.io/github/contributors/beuluis/SortSavvy.svg?style=flat-square
+
 [contributors-url]: https://github.com/beuluis/SortSavvy/graphs/contributors
+
 [forks-shield]: https://img.shields.io/github/forks/beuluis/SortSavvy.svg?style=flat-square
+
 [forks-url]: https://github.com/beuluis/SortSavvy/network/members
+
 [stars-shield]: https://img.shields.io/github/stars/beuluis/SortSavvy.svg?style=flat-square
+
 [stars-url]: https://github.com/beuluis/SortSavvy/stargazers
+
 [issues-shield]: https://img.shields.io/github/issues/beuluis/SortSavvy.svg?style=flat-square
+
 [issues-url]: https://github.com/beuluis/SortSavvy/issues
+
 [license-shield]: https://img.shields.io/github/license/beuluis/SortSavvy.svg?style=flat-square

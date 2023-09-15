@@ -3,9 +3,9 @@ package de.luisbeu.sort_savvy
 import de.luisbeu.sort_savvy.blocks.QuantumInventoryReader
 import de.luisbeu.sort_savvy.entities.QuantumInventoryReaderEntity
 import de.luisbeu.sort_savvy.events.ServerStartedHandler
-import de.luisbeu.sort_savvy.network.QuantumInventoryReaderScreenHandler
+import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
 import de.luisbeu.sort_savvy.events.ServerStoppingHandler
-import de.luisbeu.sort_savvy.network.QuantumInventoryReaderSavedNetworkHandler
+import de.luisbeu.sort_savvy.network.IdSetterScreenSavedNetworkHandler
 import de.luisbeu.sort_savvy.util.SortSavvyConstants
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
@@ -38,8 +38,8 @@ object SortSavvy : ModInitializer {
     )
 
     // Screen Handlers
-    var quantumInventoryReaderScreenHandlerType: ScreenHandlerType<QuantumInventoryReaderScreenHandler> =
-        ExtendedScreenHandlerType(::QuantumInventoryReaderScreenHandler)
+    var idSetterScreenHandlerType: ScreenHandlerType<IdSetterScreenHandler> =
+        ExtendedScreenHandlerType(::IdSetterScreenHandler)
 
     // Initialization
     override fun onInitialize() {
@@ -52,7 +52,7 @@ object SortSavvy : ModInitializer {
 
         // Networking
         ServerPlayNetworking.registerGlobalReceiver(
-            SortSavvyConstants.quantumInventoryReaderSavedNetworkHandlerId, QuantumInventoryReaderSavedNetworkHandler()
+            SortSavvyConstants.idSetterScreenSavedNetworkHandlerId, IdSetterScreenSavedNetworkHandler()
         )
 
         // Item Group
@@ -68,10 +68,10 @@ object SortSavvy : ModInitializer {
         )
 
         // Screen Handlers
-        quantumInventoryReaderScreenHandlerType = Registry.register(
+        idSetterScreenHandlerType = Registry.register(
             Registry.SCREEN_HANDLER,
-            SortSavvyConstants.quantumInventoryReaderScreenHandlerId,
-            quantumInventoryReaderScreenHandlerType
+            SortSavvyConstants.idSetterScreenHandlerId,
+            idSetterScreenHandlerType
         )
     }
 

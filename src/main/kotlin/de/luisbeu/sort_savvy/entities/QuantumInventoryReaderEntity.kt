@@ -1,7 +1,7 @@
 package de.luisbeu.sort_savvy.entities
 
 import de.luisbeu.sort_savvy.SortSavvy
-import de.luisbeu.sort_savvy.network.QuantumInventoryReaderScreenHandler
+import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
 import de.luisbeu.sort_savvy.util.PositionWithToScanDirection
 import de.luisbeu.sort_savvy.util.ServerState
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
@@ -19,7 +19,7 @@ import net.minecraft.util.math.Direction
 
 // TODO: change ktor logger to own
 class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
-    BlockEntity(SortSavvy.quantumInventoryReaderBlockEntityType, pos, state), ExtendedScreenHandlerFactory {
+    EntityWithId, BlockEntity(SortSavvy.quantumInventoryReaderBlockEntityType, pos, state), ExtendedScreenHandlerFactory {
 
     private var quantumInventoryReaderId = ""
 
@@ -74,7 +74,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
     }
 
     // Expose a function to set the quantum inventory reader id from the screen
-    fun setId(newQuantumInventoryReaderId: String, player: ServerPlayerEntity?) {
+    override fun setId(newId: String, player: ServerPlayerEntity?) {
         val serverState = getServerSate() ?: run {
             SortSavvy.LOGGER.error("Could not retrieve server state while setting quantum chest reader id for $pos")
             return;
@@ -82,26 +82,26 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
         val newDataMap = serverState.quantumInventoryReaderData.toMutableMap()
 
-        if (newQuantumInventoryReaderId.isEmpty() && this.quantumInventoryReaderId.isNotEmpty()) {
+        if (newId.isEmpty() && this.quantumInventoryReaderId.isNotEmpty()) {
             val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
 
             removeStateData(newDataMap)
 
             // When it was triggered by a player send a message
             player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.deletedDataEntry", oldQuantumInventoryReaderId), true)
-        } else if (this.quantumInventoryReaderId.isNotEmpty() && newQuantumInventoryReaderId != this.quantumInventoryReaderId) {
+        } else if (this.quantumInventoryReaderId.isNotEmpty() && newId != this.quantumInventoryReaderId) {
             val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
 
             removeStateData(newDataMap)
-            addNewStateData(newDataMap, newQuantumInventoryReaderId)
+            addNewStateData(newDataMap, newId)
 
             // When it was triggered by a player send a message
-            player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.renamedDataEntry", oldQuantumInventoryReaderId, newQuantumInventoryReaderId), true)
-        } else if (this.quantumInventoryReaderId != newQuantumInventoryReaderId) {
-            if (newDataMap.containsKey(newQuantumInventoryReaderId)) {
-                player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.dataEntryAlreadyExists", newQuantumInventoryReaderId), true)
+            player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.renamedDataEntry", oldQuantumInventoryReaderId, newId), true)
+        } else if (this.quantumInventoryReaderId != newId) {
+            if (newDataMap.containsKey(newId)) {
+                player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.dataEntryAlreadyExists", newId), true)
             } else {
-                addNewStateData(newDataMap, newQuantumInventoryReaderId)
+                addNewStateData(newDataMap, newId)
                 // When it was triggered by a player send a message
                 player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.newDataEntry", this.quantumInventoryReaderId), true)
             }
@@ -130,7 +130,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // When the block is used this gets called by openHandledScreen to spawn a new instance of the handler
     override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
-        return QuantumInventoryReaderScreenHandler(syncId, inv)
+        return IdSetterScreenHandler(syncId, inv)
     }
 
     // Construct the display name
@@ -142,6 +142,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
     }
 
     // Write the entity data we have to the buffer to read it at the client
+    // TODO: add direction
     override fun writeScreenOpeningData(player: ServerPlayerEntity, buf: PacketByteBuf) {
         buf.writeBlockPos(pos)
         buf.writeString(quantumInventoryReaderId)

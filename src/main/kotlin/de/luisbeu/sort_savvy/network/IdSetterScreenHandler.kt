@@ -11,36 +11,36 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.util.math.BlockPos
 
-class QuantumInventoryReaderScreenHandler(
+class IdSetterScreenHandler(
     syncId: Int, playerInventory: PlayerInventory, buf: PacketByteBuf = PacketByteBufs.empty()
-) : ScreenHandler(SortSavvy.quantumInventoryReaderScreenHandlerType, syncId) {
+) : ScreenHandler(SortSavvy.idSetterScreenHandlerType, syncId) {
 
     // Set all the defaults
     private var pos = BlockPos.ORIGIN
-    private var quantumInventoryReaderId: String? = null
+    private var id: String? = null
 
     init {
         // We have different scenarios when the constructor is called. On register, we do not have a buffer when the handler gets returned by the entity we have one
         if (buf.readableBytes() > 0) {
             pos = buf.readBlockPos()
-            quantumInventoryReaderId = buf.readString()
+            id = buf.readString()
         }
     }
 
-    // Expose quantum inventory reader id to not be able to modify it directly
-    fun getQuantumInventoryReaderId(): String? {
-        return quantumInventoryReaderId
+    // Expose id to not be able to modify it directly
+    fun getId(): String? {
+        return id
     }
 
-    // Setter for quantum inventory reader id to add some additional logic
-    fun setQuantumInventoryReaderId(quantumInventoryReaderId: String) {
+    // Setter for id to add some additional logic
+    fun setId(id: String) {
         // Update class attribute
-        this.quantumInventoryReaderId = quantumInventoryReaderId
+        this.id = id
 
         // Send package to client
         ClientPlayNetworking.send(
-            SortSavvyConstants.quantumInventoryReaderSavedNetworkHandlerId,
-            PacketByteBufs.create().writeBlockPos(pos).writeString(quantumInventoryReaderId)
+            SortSavvyConstants.idSetterScreenSavedNetworkHandlerId,
+            PacketByteBufs.create().writeBlockPos(pos).writeString(id)
         )
     }
 

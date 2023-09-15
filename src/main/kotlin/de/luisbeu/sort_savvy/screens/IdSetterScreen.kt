@@ -1,7 +1,7 @@
 package de.luisbeu.sort_savvy.screens
 
 import com.mojang.blaze3d.systems.RenderSystem
-import de.luisbeu.sort_savvy.network.QuantumInventoryReaderScreenHandler
+import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
 import de.luisbeu.sort_savvy.util.SortSavvyConstants
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.ButtonWidget
@@ -15,12 +15,12 @@ import net.minecraft.util.Identifier
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
 
-class QuantumInventoryReaderScreen(
+class IdSetterScreen(
     handler: ScreenHandler, playerInventory: PlayerInventory, title: Text
 ) : HandledScreen<ScreenHandler>(handler, playerInventory, title) {
 
     companion object {
-        val texture = Identifier(SortSavvyConstants.MOD_ID, "textures/gui/container/quantum_inventory_reader.png")
+        val texture = Identifier(SortSavvyConstants.MOD_ID, "textures/gui/container/default_backdrop.png")
     }
 
     // Add all ui attributes to make them available
@@ -33,7 +33,7 @@ class QuantumInventoryReaderScreen(
     // It`s important to do it in init and not during the constructor. Here some attributes are initialized that we need to access
     override fun init() {
         // Crash when the screen gets called by the wrong handler
-        if (handler !is QuantumInventoryReaderScreenHandler) {
+        if (handler !is IdSetterScreenHandler) {
             throw IllegalStateException("Invalid screen handler type")
         }
 
@@ -64,7 +64,7 @@ class QuantumInventoryReaderScreen(
             // Call the handler to get the buffered id
             Text.of("")
         )
-        textField.text = (handler as QuantumInventoryReaderScreenHandler).getQuantumInventoryReaderId()
+        textField.text = (handler as IdSetterScreenHandler).getId()
         textField.setTextFieldFocused(true)
         // Register new ui element
         addDrawableChild(textField)
@@ -78,7 +78,7 @@ class QuantumInventoryReaderScreen(
             buttonText
         ) {
             // Update the handler with the new value
-            (handler as QuantumInventoryReaderScreenHandler).setQuantumInventoryReaderId(textField.text)
+            (handler as IdSetterScreenHandler).setId(textField.text)
             // Close the screen
             close()
         }
