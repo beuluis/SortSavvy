@@ -29,6 +29,8 @@ class IdSetterScreen(
     private val margin = 7 // All stuff where we need space to a border
     private val padding = 5 // All stuff where we need space to content
     private var isDirty = false
+    private val headerHeight = 13
+    private val footerHeight = 30
 
     // It`s important to do it in init and not during the constructor. Here some attributes are initialized that we need to access
     override fun init() {
@@ -39,9 +41,6 @@ class IdSetterScreen(
 
         backgroundWidth = 174
         backgroundHeight = 93
-
-        val headerHeight = 13
-        val footerHeight = 30
 
         titleX = margin
         titleY = (headerHeight - textRenderer.fontHeight + 2) / 2 // + 2 just looks nicer when the font goes more to the bottom
@@ -150,5 +149,20 @@ class IdSetterScreen(
 
         // Implement out own foreground objects. Don`t call super because we don`t want them here
         textRenderer.draw(matrices, truncatedTitle, titleX.toFloat(), titleY.toFloat(), Color.WHITE.rgb)
+
+        // Draw the direction to scan in the bottom left corner
+        val toScanDirection = (handler as IdSetterScreenHandler).getDirectionToScan()
+        if (toScanDirection != "") {
+            val labelText = Text.translatable("gui.sort_savvy.toScanDirectoryHelper", toScanDirection)
+            textRenderer.draw(
+                matrices,
+                labelText,
+                margin.toFloat(),
+                (backgroundHeight - (footerHeight / 2) - (textRenderer.fontHeight / 2)).toFloat(),
+                Color.BLACK.rgb
+            )
+        }
+
+        // TODO: add tooltip
     }
 }

@@ -18,18 +18,25 @@ class IdSetterScreenHandler(
     // Set all the defaults
     private var pos = BlockPos.ORIGIN
     private var id: String? = null
+    private var directionToScan: String? = null
 
     init {
         // We have different scenarios when the constructor is called. On register, we do not have a buffer when the handler gets returned by the entity we have one
         if (buf.readableBytes() > 0) {
             pos = buf.readBlockPos()
             id = buf.readString()
+            directionToScan = buf.readString()
         }
     }
 
     // Expose id to not be able to modify it directly
     fun getId(): String? {
         return id
+    }
+
+    // Expose directionToScan to not be able to modify it directly
+    fun getDirectionToScan(): String? {
+        return directionToScan
     }
 
     // Setter for id to add some additional logic

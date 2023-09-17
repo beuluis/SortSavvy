@@ -3,11 +3,7 @@ package de.luisbeu.sort_savvy.blocks
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.entities.QuantumInventoryReaderEntity
 import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
-import net.minecraft.block.BlockEntityProvider
-import net.minecraft.block.BlockRenderType
-import net.minecraft.block.BlockState
-import net.minecraft.block.BlockWithEntity
-import net.minecraft.block.Material
+import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.network.ServerPlayerEntity
@@ -16,6 +12,9 @@ import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import net.minecraft.world.WorldView
+import net.minecraft.world.dimension.DimensionType
+import net.minecraft.world.dimension.DimensionTypes
 
 class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.WOOD).strength(0.4f)), BlockEntityProvider {
     override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {

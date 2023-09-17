@@ -142,9 +142,26 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
     }
 
     // Write the entity data we have to the buffer to read it at the client
-    // TODO: add direction
     override fun writeScreenOpeningData(player: ServerPlayerEntity, buf: PacketByteBuf) {
+        if (quantumInventoryReaderId == "") {
+            buf.writeBlockPos(pos)
+            buf.writeString(quantumInventoryReaderId)
+            buf.writeString("")
+            return
+        }
+
+        val serverState = getServerSate() ?: run {
+            SortSavvy.LOGGER.error("Could not retrieve server state while writing to buffer $pos")
+            return
+        }
+
+        val (_, _, _, directionToScan) = serverState.quantumInventoryReaderData[quantumInventoryReaderId] ?: run {
+            SortSavvy.LOGGER.error("Could not retrieve server state data writing to buffer $pos")
+            return
+        }
+
         buf.writeBlockPos(pos)
         buf.writeString(quantumInventoryReaderId)
+        buf.writeString(directionToScan.name)
     }
 }
