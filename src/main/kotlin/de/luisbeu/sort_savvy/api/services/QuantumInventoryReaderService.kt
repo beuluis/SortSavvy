@@ -9,16 +9,15 @@ import de.luisbeu.sort_savvy.util.ServerState
 import net.minecraft.server.MinecraftServer
 
 object QuantumInventoryReaderService {
-    fun getInventoryContentByQuantumInventoryReaderId(server: MinecraftServer, quantumInventoryReaderId: String): QuantumInventoryReaderResponse {
+    fun getInventoryContentByQuantumInventoryReaderId(quantumInventoryReaderId: String): QuantumInventoryReaderResponse {
         // Read the saved nbt data
-        val serverState = ServerState.getServerState(server)
+        val serverState = ServerState.getServerState()
 
         // Try to get the data by id form the server state. Throw if not found
         val  positionWithToScanDirection = serverState.quantumInventoryReaderData[quantumInventoryReaderId] ?: throw QuantumInventoryReaderNotFound(quantumInventoryReaderId)
 
         // Get the entity based of out location information
         val (inventoryEntity, blockPositions) = InventoryService.getInventoryEntityFromScannerPos(
-            server,
             positionWithToScanDirection
         )
 
@@ -43,9 +42,9 @@ object QuantumInventoryReaderService {
         )
     }
 
-    fun getAllInventoryContentsFromQuantumInventoryReaders(server: MinecraftServer): List<QuantumInventoryReaderResponse> {
+    fun getAllInventoryContentsFromQuantumInventoryReaders(): List<QuantumInventoryReaderResponse> {
         // Read the saved nbt data
-        val serverState = ServerState.getServerState(server)
+        val serverState = ServerState.getServerState()
 
         // Get all data entries from the server state
         val  quantumInventoryReaderData = serverState.quantumInventoryReaderData
@@ -57,7 +56,7 @@ object QuantumInventoryReaderService {
         // Read and loop over our saved data
         for ((quantumInventoryReaderId) in quantumInventoryReaderData) {
             // Add it to the return list
-            quantumInventoryReaderResponses.add(this.getInventoryContentByQuantumInventoryReaderId(server, quantumInventoryReaderId))
+            quantumInventoryReaderResponses.add(this.getInventoryContentByQuantumInventoryReaderId(quantumInventoryReaderId))
         }
 
         // Return empty or not

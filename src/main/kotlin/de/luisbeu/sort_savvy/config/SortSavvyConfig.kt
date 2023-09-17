@@ -19,19 +19,16 @@ fun generateBearerToken(length: Int): String {
     return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
 }
 
-fun getServerConfig(server: MinecraftServer): SortSavvyConfigModel {
-    return SortSavvyConfig(server.getSavePath(WorldSavePath.ROOT)).getConfig()
-}
-
 data class SortSavvyConfigModel(
     var webserverPort: Int = 8080,
     var webserverBearerToken: String = generateBearerToken(32),
 )
 
 
-class SortSavvyConfig(worldSaveDirectory: Path) {
+class SortSavvyConfig {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    private val configFile = File(worldSaveDirectory.resolve("serverconfig/SortSavvy.json").toString())
+    // TODO: test if i need to create this folder also?
+    private val configFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("serverconfig/SortSavvy.json").toString())
     private var config: SortSavvyConfigModel
 
     init {

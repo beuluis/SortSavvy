@@ -37,14 +37,6 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
         quantumInventoryReaderId = nbt.getString("quantumInventoryReaderId")
     }
 
-    private fun getServerSate(): ServerState? {
-        // Check if we are running on the server
-        val server = world?.server
-
-        // Retrieve the server state containing the quantum inventory reader data we are interested
-        return server?.let { ServerState.getServerState(it) }
-    }
-
     private fun saveServerState(serverState: ServerState, newDataMap: MutableMap<String, PositionWithToScanDirection>) {
         // Add the new map back to the server state
         serverState.quantumInventoryReaderData = newDataMap.toMap()
@@ -75,10 +67,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // Expose a function to set the quantum inventory reader id from the screen
     override fun setId(newId: String, player: ServerPlayerEntity?) {
-        val serverState = getServerSate() ?: run {
-            SortSavvy.LOGGER.error("Could not retrieve server state while setting quantum chest reader id for $pos")
-            return;
-        }
+        val serverState = ServerState.getServerState()
 
         val newDataMap = serverState.quantumInventoryReaderData.toMutableMap()
 
@@ -112,10 +101,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // Expose a function to set the quantum inventory reader to scan direction from the screen
     fun setToScanDirection(toScanDirection: Direction, player: ServerPlayerEntity?) {
-        val serverState = getServerSate() ?: run {
-            SortSavvy.LOGGER.error("Could not retrieve server state while setting quantum chest reader to scan direction for $pos")
-            return;
-        }
+        val serverState = ServerState.getServerState()
 
         val newDataMap = serverState.quantumInventoryReaderData.toMutableMap()
 
@@ -150,10 +136,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
             return
         }
 
-        val serverState = getServerSate() ?: run {
-            SortSavvy.LOGGER.error("Could not retrieve server state while writing to buffer $pos")
-            return
-        }
+        val serverState = ServerState.getServerState()
 
         val (_, _, _, directionToScan) = serverState.quantumInventoryReaderData[quantumInventoryReaderId] ?: run {
             SortSavvy.LOGGER.error("Could not retrieve server state data writing to buffer $pos")

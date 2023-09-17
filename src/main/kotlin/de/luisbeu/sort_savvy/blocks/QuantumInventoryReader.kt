@@ -64,7 +64,6 @@ class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.W
         return blockEntity as? QuantumInventoryReaderEntity
     }
 
-    // TODO: prevent placing in not overworld
     // This gets called when the block gets changed
     override fun onStateReplaced(
         state: BlockState, world: World, pos: BlockPos, newState: BlockState, moved: Boolean

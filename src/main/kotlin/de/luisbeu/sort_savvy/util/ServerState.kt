@@ -1,5 +1,6 @@
 package de.luisbeu.sort_savvy.util
 
+import de.luisbeu.sort_savvy.SortSavvy
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.Direction
@@ -7,6 +8,7 @@ import net.minecraft.world.PersistentState
 import net.minecraft.world.World
 
 // TODO: add command to rescan blocks
+// TODO: Rewrite to own json structure and save it like the config. Will also solve other dimension handling with this since we can then map id to also the dimension
 data class PositionWithToScanDirection(val x: Int, val y: Int, val z: Int, val toScanDirection: Direction)
 
 class ServerState() : PersistentState() {
@@ -63,10 +65,9 @@ class ServerState() : PersistentState() {
             return serverState
         }
 
-        fun getServerState(server: MinecraftServer): ServerState {
+        fun getServerState(): ServerState {
             // We get the persistent manager from the overworld
-            // TODO: maybe add saving for other dimensions?
-            val persistentStateManager = server.getWorld(World.OVERWORLD)?.persistentStateManager
+            val persistentStateManager = SortSavvy.LifecycleGlobals.getMinecraftServer().getWorld(World.OVERWORLD)?.persistentStateManager
                 ?: throw IllegalStateException("Overworld not loaded")
 
 

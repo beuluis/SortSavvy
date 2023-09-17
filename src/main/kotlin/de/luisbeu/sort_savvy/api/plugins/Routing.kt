@@ -9,8 +9,7 @@ import io.ktor.server.routing.*
 import net.minecraft.server.MinecraftServer
 
 // Routing definitions. Call services to separate them from http handling
-// TODO: don't provide server every time as parameter. How to get it differently?
-fun Application.configureRouting(server: MinecraftServer) {
+fun Application.configureRouting() {
     routing {
         authenticate {
             /*get("/testing") {
@@ -47,10 +46,10 @@ fun Application.configureRouting(server: MinecraftServer) {
             get("/quantum-inventory-reader/{quantumInventoryReaderId}") {
                 // Get the param and throw if not provided
                 val quantumInventoryReaderId = call.parameters["quantumInventoryReaderId"] ?: throw IdParameterNotProvidedException()
-                call.respond(QuantumInventoryReaderService.getInventoryContentByQuantumInventoryReaderId(server, quantumInventoryReaderId))
+                call.respond(QuantumInventoryReaderService.getInventoryContentByQuantumInventoryReaderId(quantumInventoryReaderId))
             }
             get("/quantum-inventory-reader/all") {
-                call.respond(QuantumInventoryReaderService.getAllInventoryContentsFromQuantumInventoryReaders(server))
+                call.respond(QuantumInventoryReaderService.getAllInventoryContentsFromQuantumInventoryReaders())
             }
         }
     }

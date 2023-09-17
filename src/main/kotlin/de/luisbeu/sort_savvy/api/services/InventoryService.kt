@@ -1,5 +1,6 @@
 package de.luisbeu.sort_savvy.api.services
 
+import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.api.dtos.Coordinates
 import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderScannedContent
 import de.luisbeu.sort_savvy.util.PositionWithToScanDirection
@@ -42,9 +43,9 @@ object InventoryService {
 
     // TODO: support vaults
     fun getInventoryEntityFromScannerPos(
-        server: MinecraftServer,
         positionWithToScanDirection: PositionWithToScanDirection,
     ): Pair<Inventory?, Pair<Coordinates, Coordinates?>> {
+        val server = SortSavvy.LifecycleGlobals.getMinecraftServer()
         val (x, y, z, toScanDirection) = positionWithToScanDirection
 
         // Check the block pos above the scanner

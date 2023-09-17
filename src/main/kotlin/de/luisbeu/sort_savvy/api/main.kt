@@ -18,12 +18,12 @@ object WebServer {
     private var applicationEngine: ApplicationEngine? = null
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun start(server: MinecraftServer) {
-        val config = getServerConfig(server)
+    fun start() {
+        val config = SortSavvy.LifecycleGlobals.getConfig()
 
         // Use GlobalScope.launch to not block the main thread
         GlobalScope.launch {
-            applicationEngine = embeddedServer(Netty, port = config.webserverPort, module = { module(server) })
+            applicationEngine = embeddedServer(Netty, port = config.webserverPort, module = { module() })
             applicationEngine?.start(wait = true)
             SortSavvy.LOGGER.info("Web Server started")
         }
@@ -36,11 +36,9 @@ object WebServer {
 }
 
 // Assemble our server
-fun Application.module(server: MinecraftServer) {
-    val config = getServerConfig(server)
-
-    configureAuthentication(config)
+fun Application.module() {
+    configureAuthentication()
     configureExceptions()
     configureSerialization()
-    configureRouting(server)
+    configureRouting()
 }

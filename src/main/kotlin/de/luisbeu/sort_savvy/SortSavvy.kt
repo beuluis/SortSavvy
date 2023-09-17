@@ -1,6 +1,8 @@
 package de.luisbeu.sort_savvy
 
 import de.luisbeu.sort_savvy.blocks.QuantumInventoryReader
+import de.luisbeu.sort_savvy.config.SortSavvyConfig
+import de.luisbeu.sort_savvy.config.SortSavvyConfigModel
 import de.luisbeu.sort_savvy.entities.QuantumInventoryReaderEntity
 import de.luisbeu.sort_savvy.events.ServerStartedHandler
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
@@ -18,6 +20,7 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.ScreenHandlerType
+import net.minecraft.server.MinecraftServer
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -25,6 +28,35 @@ import org.apache.logging.log4j.Logger
 object SortSavvy : ModInitializer {
     // Initialize the logger here to have access everywhere
     val LOGGER: Logger = LogManager.getLogger(SortSavvyConstants.MOD_NAME)
+
+    // A companion object to store all resources only available on certain execution times. So watch out when you access them
+    object LifecycleGlobals {
+        // Minecraft server global. Expose it for webserver operations
+        private var MINECRAFT_SERVER: MinecraftServer? = null
+        fun getMinecraftServer(): MinecraftServer = MINECRAFT_SERVER ?: run {
+            val msg = "Tried to access the minecraft server global outside its lifecycle"
+            LOGGER.error(msg)
+            throw IllegalAccessError(msg)
+        }
+        fun setMinecraftServer(server: MinecraftServer) {
+            MINECRAFT_SERVER = server
+            CONFIG = SortSavvyConfig().getConfig()
+        }
+
+        // Config global
+        private var CONFIG: SortSavvyConfigModel? = null
+        fun getConfig(): SortSavvyConfigModel = CONFIG ?: run {
+            val msg = "Tried to access the config global outside its lifecycle"
+            LOGGER.error(msg)
+            throw IllegalAccessError(msg)
+        }
+
+        // Just to be sure set this to null so that our error throws if we try to access those at the wrong time
+        fun destroy() {
+            MINECRAFT_SERVER = null
+            CONFIG = null
+        }
+    }
 
     // Blocks and Block Entities
     private val quantumInventoryReaderBlock = Registry.register(
