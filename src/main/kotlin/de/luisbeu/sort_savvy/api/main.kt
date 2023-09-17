@@ -5,7 +5,6 @@ import de.luisbeu.sort_savvy.api.plugins.configureAuthentication
 import de.luisbeu.sort_savvy.api.plugins.configureExceptions
 import de.luisbeu.sort_savvy.api.plugins.configureRouting
 import de.luisbeu.sort_savvy.api.plugins.configureSerialization
-import de.luisbeu.sort_savvy.config.getServerConfig
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
