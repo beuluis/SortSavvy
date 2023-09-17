@@ -33,18 +33,25 @@ object SortSavvy : ModInitializer {
     object LifecycleGlobals {
         // Minecraft server global. Expose it for webserver operations
         private var MINECRAFT_SERVER: MinecraftServer? = null
+
+        // Add a getter that throws if we try to access it at the wrong time
         fun getMinecraftServer(): MinecraftServer = MINECRAFT_SERVER ?: run {
             val msg = "Tried to access the minecraft server global outside its lifecycle"
             LOGGER.error(msg)
             throw IllegalAccessError(msg)
         }
+
         fun setMinecraftServer(server: MinecraftServer) {
             MINECRAFT_SERVER = server
+
+            // Also set all down stream dependencies new
             CONFIG = SortSavvyConfig().getConfig()
         }
 
         // Config global
         private var CONFIG: SortSavvyConfigModel? = null
+
+        // Add a getter that throws if we try to access it at the wrong time
         fun getConfig(): SortSavvyConfigModel = CONFIG ?: run {
             val msg = "Tried to access the config global outside its lifecycle"
             LOGGER.error(msg)
@@ -80,7 +87,6 @@ object SortSavvy : ModInitializer {
 
         // Register a handler for the server stopping event
         ServerLifecycleEvents.SERVER_STOPPING.register(ServerStoppingHandler())
-
 
         // Networking
         ServerPlayNetworking.registerGlobalReceiver(
