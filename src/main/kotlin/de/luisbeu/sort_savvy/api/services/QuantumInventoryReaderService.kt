@@ -5,20 +5,18 @@ import de.luisbeu.sort_savvy.api.dtos.Coordinates
 import de.luisbeu.sort_savvy.api.dtos.responses.QuantumInventoryReaderResponse
 import de.luisbeu.sort_savvy.api.exceptions.NoInventoryFoundToScan
 import de.luisbeu.sort_savvy.api.exceptions.QuantumInventoryReaderNotFound
-import de.luisbeu.sort_savvy.util.ServerState
-import net.minecraft.server.MinecraftServer
 
 object QuantumInventoryReaderService {
     fun getInventoryContentByQuantumInventoryReaderId(quantumInventoryReaderId: String): QuantumInventoryReaderResponse {
-        // Read the saved nbt data
-        val serverState = ServerState.getServerState()
+        // Read the saved data
+        val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
 
-        // Try to get the data by id form the server state. Throw if not found
-        val  positionWithToScanDirection = serverState.quantumInventoryReaderData[quantumInventoryReaderId] ?: throw QuantumInventoryReaderNotFound(quantumInventoryReaderId)
+        // Try to get the data by id form the persisted data. Throw if not found
+        val  positionalContext = persistentManager.getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: throw QuantumInventoryReaderNotFound(quantumInventoryReaderId)
 
         // Get the entity based of out location information
         val (inventoryEntity, blockPositions) = InventoryService.getInventoryEntityFromScannerPos(
-            positionWithToScanDirection
+            positionalContext
         )
 
         // Throw if no inventory is found
@@ -31,8 +29,8 @@ object QuantumInventoryReaderService {
         // Retrieve the contents from the entity
         val scannedContent = InventoryService.getInventoryContents(inventoryEntity)
 
-        // Asabmle the return dto
-        val (x, y, z) = positionWithToScanDirection
+        // Assessable the return dto
+        val (x, y, z) = positionalContext
         return QuantumInventoryReaderResponse(
             quantumInventoryReaderId,
             Coordinates(x, y, z),
@@ -43,11 +41,11 @@ object QuantumInventoryReaderService {
     }
 
     fun getAllInventoryContentsFromQuantumInventoryReaders(): List<QuantumInventoryReaderResponse> {
-        // Read the saved nbt data
-        val serverState = ServerState.getServerState()
+        // Read the saved data
+        val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
 
-        // Get all data entries from the server state
-        val  quantumInventoryReaderData = serverState.quantumInventoryReaderData
+        // Get all data entries from the persisted data
+        val  quantumInventoryReaderData = persistentManager.getQuantumInventoryReaderData()
 
         // Construct an empty list of the data class we want to return
         val quantumInventoryReaderResponses = mutableListOf<QuantumInventoryReaderResponse>()

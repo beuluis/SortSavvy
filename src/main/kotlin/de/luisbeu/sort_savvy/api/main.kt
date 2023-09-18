@@ -11,18 +11,15 @@ import io.ktor.server.netty.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.minecraft.server.MinecraftServer
 
 object WebServer {
     private var applicationEngine: ApplicationEngine? = null
 
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
-        val config = SortSavvy.LifecycleGlobals.getConfig()
-
         // Use GlobalScope.launch to not block the main thread
         GlobalScope.launch {
-            applicationEngine = embeddedServer(Netty, port = config.webserverPort, module = { module() })
+            applicationEngine = embeddedServer(Netty, port = SortSavvy.LifecycleGlobals.getConfigManager().config.webserverPort, module = { module() })
             applicationEngine?.start(wait = true)
             SortSavvy.LOGGER.info("Web Server started")
         }

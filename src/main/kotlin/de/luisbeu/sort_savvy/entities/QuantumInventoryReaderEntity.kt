@@ -2,8 +2,7 @@ package de.luisbeu.sort_savvy.entities
 
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
-import de.luisbeu.sort_savvy.util.PositionWithToScanDirection
-import de.luisbeu.sort_savvy.util.ServerState
+import de.luisbeu.sort_savvy.persistent.PositionalContext
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -16,6 +15,8 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
+import net.minecraft.util.registry.RegistryKey
+import net.minecraft.world.World
 
 // TODO: change ktor logger to own
 class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
@@ -37,18 +38,21 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
         quantumInventoryReaderId = nbt.getString("quantumInventoryReaderId")
     }
 
-    private fun saveServerState(serverState: ServerState, newDataMap: MutableMap<String, PositionWithToScanDirection>) {
-        // Add the new map back to the server state
-        serverState.quantumInventoryReaderData = newDataMap.toMap()
-
-        // Mark it dirty to trigger saving
-        serverState.markDirty()
+    private fun saveToPersistedData(newDataMap: MutableMap<String, PositionalContext>) {
+        // Add the new map back to the persisted data
+        SortSavvy.LifecycleGlobals.getPersistentManager().setQuantumInventoryReaderData(newDataMap.toMap())
 
         // Mark entity as dirty to trigger saving
         markDirty()
     }
 
-    private fun removeStateData(dataMap: MutableMap<String, PositionWithToScanDirection>) {
+    private fun getWorldKey(): RegistryKey<World> = world?.registryKey ?: run {
+        // TODO: Rework throws
+        SortSavvy.LOGGER.error("Could not get world for $quantumInventoryReaderId")
+        throw Exception()
+    }
+
+    private fun removeFromDataMap(dataMap: MutableMap<String, PositionalContext>) {
         // If an old key is present we know it is a delete action
         if (this.quantumInventoryReaderId.isNotEmpty()) {
             dataMap.remove(this.quantumInventoryReaderId)
@@ -56,33 +60,42 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
-    private fun addNewStateData(dataMap: MutableMap<String, PositionWithToScanDirection>, newId: String, toScanDirection: Direction = Direction.UP) {
-        dataMap[newId] = PositionWithToScanDirection(pos.x, pos.y, pos.z, toScanDirection)
+    private fun addNewToDataMap(dataMap: MutableMap<String, PositionalContext>, newId: String, toScanDirection: Direction = Direction.UP) {
+        dataMap[newId] = PositionalContext(pos.x, pos.y, pos.z, toScanDirection, getWorldKey())
         this.quantumInventoryReaderId = newId
     }
 
-    private fun updateStateData(dataMap: MutableMap<String, PositionWithToScanDirection>, toScanDirection: Direction = Direction.UP) {
-        dataMap[this.quantumInventoryReaderId] = PositionWithToScanDirection(pos.x, pos.y, pos.z, toScanDirection)
+    // TODO: extract those as generics to the persistent manager?
+    private fun updateDataMapToScanDirection(dataMap: MutableMap<String, PositionalContext>, toScanDirection: Direction = Direction.UP) {
+        val oldValue = dataMap[this.quantumInventoryReaderId] ?: run {
+            SortSavvy.LOGGER.error("Could not retrieve quantum inventory reader with id $quantumInventoryReaderId to update")
+            throw Exception() // TODO: rework throws
+        }
+
+        dataMap[this.quantumInventoryReaderId] = oldValue.copy(
+            toScanDirection = toScanDirection
+        )
     }
 
     // Expose a function to set the quantum inventory reader id from the screen
     override fun setId(newId: String, player: ServerPlayerEntity?) {
-        val serverState = ServerState.getServerState()
+        // Read the saved data
+        val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
 
-        val newDataMap = serverState.quantumInventoryReaderData.toMutableMap()
+        val newDataMap = persistentManager.getQuantumInventoryReaderData().toMutableMap()
 
         if (newId.isEmpty() && this.quantumInventoryReaderId.isNotEmpty()) {
             val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
 
-            removeStateData(newDataMap)
+            removeFromDataMap(newDataMap)
 
             // When it was triggered by a player send a message
             player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.deletedDataEntry", oldQuantumInventoryReaderId), true)
         } else if (this.quantumInventoryReaderId.isNotEmpty() && newId != this.quantumInventoryReaderId) {
             val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
 
-            removeStateData(newDataMap)
-            addNewStateData(newDataMap, newId)
+            removeFromDataMap(newDataMap)
+            addNewToDataMap(newDataMap, newId)
 
             // When it was triggered by a player send a message
             player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.renamedDataEntry", oldQuantumInventoryReaderId, newId), true)
@@ -90,28 +103,29 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
             if (newDataMap.containsKey(newId)) {
                 player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.dataEntryAlreadyExists", newId), true)
             } else {
-                addNewStateData(newDataMap, newId)
+                addNewToDataMap(newDataMap, newId)
                 // When it was triggered by a player send a message
                 player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.newDataEntry", this.quantumInventoryReaderId), true)
             }
         }
 
-        saveServerState(serverState, newDataMap)
+        saveToPersistedData(newDataMap)
     }
 
     // Expose a function to set the quantum inventory reader to scan direction from the screen
     fun setToScanDirection(toScanDirection: Direction, player: ServerPlayerEntity?) {
-        val serverState = ServerState.getServerState()
+        // Read the saved data
+        val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
 
-        val newDataMap = serverState.quantumInventoryReaderData.toMutableMap()
+        val newDataMap = persistentManager.getQuantumInventoryReaderData().toMutableMap()
 
         // We save the new direction to scan
-        updateStateData(newDataMap, toScanDirection)
+        updateDataMapToScanDirection(newDataMap, toScanDirection)
 
         // When it was triggered by a player send a message
         player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.toScanDirectoryChanged", toScanDirection.name), true)
 
-        saveServerState(serverState, newDataMap)
+        saveToPersistedData(newDataMap)
     }
 
     // When the block is used this gets called by openHandledScreen to spawn a new instance of the handler
@@ -136,10 +150,8 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
             return
         }
 
-        val serverState = ServerState.getServerState()
-
-        val (_, _, _, directionToScan) = serverState.quantumInventoryReaderData[quantumInventoryReaderId] ?: run {
-            SortSavvy.LOGGER.error("Could not retrieve server state data writing to buffer $pos")
+        val (_, _, _, directionToScan) = SortSavvy.LifecycleGlobals.getPersistentManager().getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: run {
+            SortSavvy.LOGGER.error("Could not retrieve quantum inventory reader with id $quantumInventoryReaderId from persisted data")
             return
         }
 

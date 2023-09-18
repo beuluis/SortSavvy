@@ -1,8 +1,8 @@
 package de.luisbeu.sort_savvy.screens
 
 import com.mojang.blaze3d.systems.RenderSystem
+import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
-import de.luisbeu.sort_savvy.util.SortSavvyConstants
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.ButtonWidget
 import net.minecraft.client.gui.widget.TextFieldWidget
@@ -20,7 +20,7 @@ class IdSetterScreen(
 ) : HandledScreen<ScreenHandler>(handler, playerInventory, title) {
 
     companion object {
-        val texture = Identifier(SortSavvyConstants.MOD_ID, "textures/gui/container/default_backdrop.png")
+        val texture = Identifier(SortSavvy.Constants.MOD_ID, "textures/gui/container/default_backdrop.png")
     }
 
     // Add all ui attributes to make them available

@@ -12,7 +12,7 @@ fun Application.configureAuthentication() {
         bearer {
             authenticate { tokenCredential ->
                 // Compare with the generated token in the config
-                if (tokenCredential.token == SortSavvy.LifecycleGlobals.getConfig().webserverBearerToken) {
+                if (tokenCredential.token == SortSavvy.LifecycleGlobals.getConfigManager().config.webserverBearerToken) {
                     // If the token matches we assign a dummy user id principal
                     // TODO: find better way or understand it
                     UserIdPrincipal("steve")

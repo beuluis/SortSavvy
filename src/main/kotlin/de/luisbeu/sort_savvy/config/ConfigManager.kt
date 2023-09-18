@@ -3,12 +3,10 @@ package de.luisbeu.sort_savvy.config
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import de.luisbeu.sort_savvy.SortSavvy
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.WorldSavePath
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.nio.file.Path
 import java.security.SecureRandom
 import java.util.Base64
 
@@ -25,27 +23,35 @@ data class SortSavvyConfigModel(
 )
 
 
-class SortSavvyConfig {
+class ConfigManager {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    // TODO: test if i need to create this folder also?
     private val configFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("serverconfig/SortSavvy.json").toString())
-    private var config: SortSavvyConfigModel
+    val config: SortSavvyConfigModel
 
     init {
         if (configFile.exists()) {
-            config = gson.fromJson(FileReader(configFile), SortSavvyConfigModel::class.java)
+            try {
+                config = gson.fromJson(FileReader(configFile), SortSavvyConfigModel::class.java)
+            } catch (e: Exception) {
+                SortSavvy.LOGGER.error("Config could not be loaded: ${e.message}")
+                throw Exception() // TODO:
+            }
         } else {
             config = SortSavvyConfigModel()
             saveConfig()
         }
     }
 
-    fun getConfig(): SortSavvyConfigModel {
-        return config
-    }
-
     private fun saveConfig() {
         try {
+            // Get the parent directory of the config file
+            val parentDirectory = configFile.parentFile
+
+            // Create the parent directory if it doesn't exist
+            if (!parentDirectory.exists()) {
+                parentDirectory.mkdirs()
+            }
+
             FileWriter(configFile).use { writer ->
                 gson.toJson(config, writer)
             }

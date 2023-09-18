@@ -3,15 +3,15 @@ package de.luisbeu.sort_savvy.api.services
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.api.dtos.Coordinates
 import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderScannedContent
-import de.luisbeu.sort_savvy.util.PositionWithToScanDirection
+import de.luisbeu.sort_savvy.persistent.PositionalContext
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.RegistryKey
 import net.minecraft.world.World
 
 object InventoryService {
@@ -43,17 +43,19 @@ object InventoryService {
 
     // TODO: support vaults
     fun getInventoryEntityFromScannerPos(
-        positionWithToScanDirection: PositionWithToScanDirection,
+        positionalContext: PositionalContext,
     ): Pair<Inventory?, Pair<Coordinates, Coordinates?>> {
         val server = SortSavvy.LifecycleGlobals.getMinecraftServer()
-        val (x, y, z, toScanDirection) = positionWithToScanDirection
+        val (x, y, z, toScanDirection, worldRegistryKey) = positionalContext
+
+        SortSavvy.LOGGER.info(worldRegistryKey)
 
         // Check the block pos above the scanner
         val potentialInventoryPos = BlockPos(x, y, z).offset(toScanDirection)
 
         // Go over the chunk to also handle unloaded chunks
         val chunkPos = ChunkPos(potentialInventoryPos)
-        val chunk = server.getWorld(World.OVERWORLD)?.getChunk(chunkPos.x, chunkPos.z)
+        val chunk = server.getWorld(worldRegistryKey)?.getChunk(chunkPos.x, chunkPos.z)
 
         // Check if we have a chunk
         if (chunk != null) {

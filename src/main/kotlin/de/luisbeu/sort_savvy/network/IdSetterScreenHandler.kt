@@ -1,7 +1,6 @@
 package de.luisbeu.sort_savvy.network
 
 import de.luisbeu.sort_savvy.SortSavvy
-import de.luisbeu.sort_savvy.util.SortSavvyConstants
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.entity.player.PlayerEntity
@@ -46,7 +45,7 @@ class IdSetterScreenHandler(
 
         // Send package to client
         ClientPlayNetworking.send(
-            SortSavvyConstants.idSetterScreenSavedNetworkHandlerId,
+            SortSavvy.Constants.idSetterScreenSavedNetworkHandlerId,
             PacketByteBufs.create().writeBlockPos(pos).writeString(id)
         )
     }
