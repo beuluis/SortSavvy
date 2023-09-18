@@ -14,7 +14,7 @@ import java.io.FileWriter
 data class PositionalContext(val x: Int, val y: Int, val z: Int, val toScanDirection: Direction, val worldRegistryKey: RegistryKey<World>)
 
 data class DataStateModel(
-    var quantumInventoryReaderData: Map<String, PositionalContext> = mapOf(),
+    var quantumInventoryReaderData: MutableMap<String, PositionalContext> = mutableMapOf(),
 )
 
 class PersistentManager {
@@ -36,13 +36,39 @@ class PersistentManager {
         }
     }
 
-    fun setQuantumInventoryReaderData(data: Map<String, PositionalContext>) {
-        dataState.quantumInventoryReaderData = data
+    fun getQuantumInventoryReaderData(): Map<String, PositionalContext> {
+        return dataState.quantumInventoryReaderData
+    }
+
+    fun deleteQuantumInventoryReaderData(key: String) {
+        dataState.quantumInventoryReaderData.remove(key)
         saveData()
     }
 
-    fun getQuantumInventoryReaderData(): Map<String, PositionalContext> {
-        return dataState.quantumInventoryReaderData
+    fun addQuantumInventoryReaderData(key: String, context: PositionalContext) {
+        dataState.quantumInventoryReaderData[key] = context
+        saveData()
+    }
+
+    fun modifyQuantumInventoryReaderData(key: String, modifier: (PositionalContext) -> PositionalContext) {
+        if (dataState.quantumInventoryReaderData.containsKey(key)) {
+            val currentContext = dataState.quantumInventoryReaderData[key] ?: return
+            val updatedContext = modifier(currentContext)
+            dataState.quantumInventoryReaderData[key] = updatedContext
+            saveData()
+            return
+        }
+        // TODO: throw?
+    }
+
+    fun renameQuantumInventoryReaderData(oldKey: String, newKey: String) {
+        if (dataState.quantumInventoryReaderData.containsKey(oldKey)) {
+            val context = dataState.quantumInventoryReaderData.remove(oldKey)
+            context?.let {
+                dataState.quantumInventoryReaderData[newKey] = it
+                saveData()
+            }
+        }
     }
 
     fun saveData() {

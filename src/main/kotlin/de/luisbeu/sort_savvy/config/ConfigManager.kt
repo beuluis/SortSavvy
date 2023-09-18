@@ -29,16 +29,16 @@ class ConfigManager {
     val config: SortSavvyConfigModel
 
     init {
-        if (configFile.exists()) {
-            try {
+        try {
+            if (configFile.exists()) {
                 config = gson.fromJson(FileReader(configFile), SortSavvyConfigModel::class.java)
-            } catch (e: Exception) {
-                SortSavvy.LOGGER.error("Config could not be loaded: ${e.message}")
-                throw Exception() // TODO:
+            } else {
+                config = SortSavvyConfigModel()
+                saveConfig()
             }
-        } else {
-            config = SortSavvyConfigModel()
-            saveConfig()
+        } catch (e: Exception) {
+            SortSavvy.LOGGER.error("Config could not be loaded: ${e.message}")
+            throw Exception() // TODO:
         }
     }
 
