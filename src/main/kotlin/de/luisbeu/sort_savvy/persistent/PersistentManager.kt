@@ -13,26 +13,30 @@ import java.io.FileWriter
 
 data class PositionalContext(val x: Int, val y: Int, val z: Int, val toScanDirection: Direction, val worldRegistryKey: RegistryKey<World>)
 
+// Model data class to specify structure and make serialization easier
 data class DataStateModel(
     var quantumInventoryReaderData: MutableMap<String, PositionalContext> = mutableMapOf(),
 )
 
 class PersistentManager {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+    // Not sure if the data directory is the best since it normally is dimension bases and for the overworld. But we write json anyway and not nbt so i guess we are good.
     private val dataStateFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("data/SortSavvy.json").toString())
     private var dataState: DataStateModel
 
     init {
-        if (dataStateFile.exists()) {
-            try {
+        try {
+            // Check if we already have a data file and if yes load it and deserialize it
+            if (dataStateFile.exists()) {
                 dataState = gson.fromJson(FileReader(dataStateFile), DataStateModel::class.java)
-            } catch (e: Exception) {
-                SortSavvy.LOGGER.error("Data could not be loaded: ${e.message}")
-                throw Exception() // TODO:
+            } else {
+                // If not previous data file is found we create a new one with the default values defined by the model.
+                dataState = DataStateModel()
+                saveData()
             }
-        } else {
-            dataState = DataStateModel()
-            saveData()
+        } catch (error: Exception) {
+            SortSavvy.logger.error("Data could not be loaded: ${error.message}")
+            throw error
         }
     }
 
@@ -42,32 +46,48 @@ class PersistentManager {
 
     fun deleteQuantumInventoryReaderData(key: String) {
         dataState.quantumInventoryReaderData.remove(key)
+
+        // Instantly save to disk to not lose any data
         saveData()
     }
 
-    fun addQuantumInventoryReaderData(key: String, context: PositionalContext) {
-        dataState.quantumInventoryReaderData[key] = context
+    fun addQuantumInventoryReaderData(key: String, positionalContext: PositionalContext) {
+        dataState.quantumInventoryReaderData[key] = positionalContext
+
+        // Instantly save to disk to not lose any data
         saveData()
     }
 
     fun modifyQuantumInventoryReaderData(key: String, modifier: (PositionalContext) -> PositionalContext) {
-        if (dataState.quantumInventoryReaderData.containsKey(key)) {
-            val currentContext = dataState.quantumInventoryReaderData[key] ?: return
-            val updatedContext = modifier(currentContext)
-            dataState.quantumInventoryReaderData[key] = updatedContext
-            saveData()
-            return
+        // Get the current PositionalContext to pass it to a modifier method
+        val currentPositionalContext = dataState.quantumInventoryReaderData[key] ?: run {
+            SortSavvy.logger.error("Could not modify quantum inventory reader data with id: $key")
+            throw Exception() // TODO: ex
         }
-        // TODO: throw?
+
+        // Pass it and get the updated version
+        val updatedPositionalContext = modifier(currentPositionalContext)
+
+        // Update it at class level
+        dataState.quantumInventoryReaderData[key] = updatedPositionalContext
+
+        // Instantly save to disk to not lose any data
+        saveData()
     }
 
     fun renameQuantumInventoryReaderData(oldKey: String, newKey: String) {
-        if (dataState.quantumInventoryReaderData.containsKey(oldKey)) {
-            val context = dataState.quantumInventoryReaderData.remove(oldKey)
-            context?.let {
-                dataState.quantumInventoryReaderData[newKey] = it
-                saveData()
-            }
+        // Retrieve the old PositionalContext and remove the old key
+        val positionalContext = dataState.quantumInventoryReaderData.remove(oldKey) ?: run {
+            SortSavvy.logger.error("Could not retrieve previous data to rename quantum inventory reader data with id: $oldKey")
+            throw Exception() // TODO: ex
+        }
+
+        positionalContext.let {
+            // Add the old PositionalContext under the new key
+            dataState.quantumInventoryReaderData[newKey] = it
+
+            // Instantly save to disk to not lose any data
+            saveData()
         }
     }
 
@@ -89,8 +109,9 @@ class PersistentManager {
             FileWriter(dataStateFile).use { writer ->
                 gson.toJson(jsonObject, writer)
             }
-        } catch (e: Exception) {
-            SortSavvy.LOGGER.error("Data could not be saved: ${e.message}")
+        } catch (error: Exception) {
+            SortSavvy.logger.error("Data could not be saved: ${error.message}")
+            throw error
         }
     }
 }

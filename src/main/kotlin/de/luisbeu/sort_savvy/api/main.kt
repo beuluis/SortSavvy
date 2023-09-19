@@ -21,13 +21,13 @@ object WebServer {
         GlobalScope.launch {
             applicationEngine = embeddedServer(Netty, port = SortSavvy.LifecycleGlobals.getConfigManager().config.webserverPort, module = { module() })
             applicationEngine?.start(wait = true)
-            SortSavvy.LOGGER.info("Web Server started")
+            SortSavvy.logger.info("Web Server started")
         }
     }
 
     fun stop() {
         applicationEngine?.stop(1000, 1000)
-        SortSavvy.LOGGER.info("Web Server stopped")
+        SortSavvy.logger.info("Web Server stopped")
     }
 }
 

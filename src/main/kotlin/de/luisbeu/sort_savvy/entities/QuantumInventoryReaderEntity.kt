@@ -39,21 +39,8 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
     }
 
     private fun getWorldKey(): RegistryKey<World> = world?.registryKey ?: run {
-        // TODO: Rework throws
-        SortSavvy.LOGGER.error("Could not get world for $quantumInventoryReaderId")
-        throw Exception()
-    }
-
-    // TODO: extract those as generics to the persistent manager?
-    private fun updateDataMapToScanDirection(dataMap: MutableMap<String, PositionalContext>, toScanDirection: Direction = Direction.UP) {
-        val oldValue = dataMap[this.quantumInventoryReaderId] ?: run {
-            SortSavvy.LOGGER.error("Could not retrieve quantum inventory reader with id $quantumInventoryReaderId to update")
-            throw Exception() // TODO: rework throws
-        }
-
-        dataMap[this.quantumInventoryReaderId] = oldValue.copy(
-            toScanDirection = toScanDirection
-        )
+        SortSavvy.logger.error("Could not get world for $quantumInventoryReaderId")
+        throw Exception() // TODO: ex
     }
 
     // Expose a function to set the quantum inventory reader id from the screen
@@ -132,7 +119,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
         }
 
         val (_, _, _, directionToScan) = SortSavvy.LifecycleGlobals.getPersistentManager().getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: run {
-            SortSavvy.LOGGER.error("Could not retrieve quantum inventory reader with id $quantumInventoryReaderId from persisted data")
+            SortSavvy.logger.warn("Could not retrieve quantum inventory reader with id $quantumInventoryReaderId from persisted data")
             return
         }
 

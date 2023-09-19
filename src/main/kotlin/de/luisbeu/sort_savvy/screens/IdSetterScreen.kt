@@ -20,7 +20,7 @@ class IdSetterScreen(
 ) : HandledScreen<ScreenHandler>(handler, playerInventory, title) {
 
     companion object {
-        val texture = Identifier(SortSavvy.Constants.MOD_ID, "textures/gui/container/default_backdrop.png")
+        val texture = Identifier(SortSavvy.Constants.modId, "textures/gui/container/default_backdrop.png")
     }
 
     // Add all ui attributes to make them available
@@ -36,7 +36,9 @@ class IdSetterScreen(
     override fun init() {
         // Crash when the screen gets called by the wrong handler
         if (handler !is IdSetterScreenHandler) {
-            throw IllegalStateException("Invalid screen handler type")
+            val msg = "Invalid screen handler type"
+            SortSavvy.logger.error(msg)
+            throw IllegalStateException(msg)
         }
 
         backgroundWidth = 174
@@ -63,8 +65,10 @@ class IdSetterScreen(
             // Call the handler to get the buffered id
             Text.of("")
         )
-        textField.text = (handler as IdSetterScreenHandler).getId()
+        textField.text = (handler as IdSetterScreenHandler).id
+
         textField.setTextFieldFocused(true)
+
         // Register new ui element
         addDrawableChild(textField)
 
@@ -81,6 +85,7 @@ class IdSetterScreen(
             // Close the screen
             close()
         }
+
         // Register new ui element
         addDrawableChild(safeButton)
 
@@ -151,7 +156,7 @@ class IdSetterScreen(
         textRenderer.draw(matrices, truncatedTitle, titleX.toFloat(), titleY.toFloat(), Color.WHITE.rgb)
 
         // Draw the direction to scan in the bottom left corner
-        val toScanDirection = (handler as IdSetterScreenHandler).getDirectionToScan()
+        val toScanDirection = (handler as IdSetterScreenHandler).directionToScan
         if (toScanDirection != "") {
             val labelText = Text.translatable("gui.sort_savvy.toScanDirectoryHelper", toScanDirection)
             textRenderer.draw(

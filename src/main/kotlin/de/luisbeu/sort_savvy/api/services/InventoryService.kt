@@ -11,8 +11,6 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.registry.Registry
-import net.minecraft.util.registry.RegistryKey
-import net.minecraft.world.World
 
 object InventoryService {
     // TODO: support vaults
@@ -47,8 +45,6 @@ object InventoryService {
     ): Pair<Inventory?, Pair<Coordinates, Coordinates?>> {
         val server = SortSavvy.LifecycleGlobals.getMinecraftServer()
         val (x, y, z, toScanDirection, worldRegistryKey) = positionalContext
-
-        SortSavvy.LOGGER.info(worldRegistryKey)
 
         // Check the block pos above the scanner
         val potentialInventoryPos = BlockPos(x, y, z).offset(toScanDirection)

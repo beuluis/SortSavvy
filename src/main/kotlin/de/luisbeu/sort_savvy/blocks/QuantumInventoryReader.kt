@@ -12,9 +12,6 @@ import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import net.minecraft.world.WorldView
-import net.minecraft.world.dimension.DimensionType
-import net.minecraft.world.dimension.DimensionTypes
 
 class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.WOOD).strength(0.4f)), BlockEntityProvider {
     override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
@@ -36,7 +33,7 @@ class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.W
             if(player.isSneaking) {
                 // Get the entity at that position
                 val quantumInventoryReaderEntity = this.getBlockEntity(world, pos)?: run {
-                    SortSavvy.LOGGER.error("No quantum inventory reader entity found at $pos could not update")
+                    SortSavvy.logger.warn("No quantum inventory reader entity found at $pos could not update")
                     return ActionResult.FAIL
                 }
                 val serverPlayer = player as? ServerPlayerEntity
@@ -46,7 +43,7 @@ class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.W
             } else {
                 // If player is not sneaking open the screen
                 val screenHandlerFactory = state.createScreenHandlerFactory(world, pos)?: run {
-                    SortSavvy.LOGGER.error("No screen handler could be created")
+                    SortSavvy.logger.warn("No screen handler could be created")
                     return ActionResult.FAIL
                 }
 
@@ -72,12 +69,14 @@ class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.W
         if (state.block != newState.block) {
             // Get the entity at that position
             val quantumInventoryReaderEntity = this.getBlockEntity(world, pos)?: run {
-                SortSavvy.LOGGER.error("No quantum inventory reader entity found at $pos could not delete")
+                SortSavvy.logger.warn("No quantum inventory reader entity found at $pos could not delete")
                 return
             }
+
             val player = world.getClosestPlayer(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), -1.0, false) as? ServerPlayerEntity
 
             // If we have a quantum inventory reader entity at this pos we delete it
+            // TODO: dedicated delete function?
             quantumInventoryReaderEntity.setId("", player)
 
             super.onStateReplaced(state, world, pos, newState, moved)

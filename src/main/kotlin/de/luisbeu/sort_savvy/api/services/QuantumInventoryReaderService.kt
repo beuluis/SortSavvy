@@ -22,7 +22,7 @@ object QuantumInventoryReaderService {
         // Throw if no inventory is found
         // TODO: maybe design a empty inventory data structure?
         if (inventoryEntity == null) {
-            SortSavvy.LOGGER.info("No inventory found at x=${blockPositions.first.x} y=${blockPositions.first.y} z=${blockPositions.first.z}")
+            SortSavvy.logger.info("No inventory found at x=${blockPositions.first.x} y=${blockPositions.first.y} z=${blockPositions.first.z}")
             throw NoInventoryFoundToScan(blockPositions.first)
         }
 

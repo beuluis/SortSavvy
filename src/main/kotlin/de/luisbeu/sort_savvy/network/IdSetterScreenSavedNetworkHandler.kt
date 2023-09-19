@@ -25,7 +25,7 @@ class IdSetterScreenSavedNetworkHandler : PlayChannelHandler {
         val chunkPos = ChunkPos(pos)
         val chunk = player.world.getChunk(chunkPos.x, chunkPos.z)
         val blockEntity = (chunk?.getBlockEntity(pos) as? EntityWithId)?: run {
-            SortSavvy.LOGGER.error("No entity with id found at $pos")
+            SortSavvy.logger.warn("No entity with id found at $pos")
             return
         }
 

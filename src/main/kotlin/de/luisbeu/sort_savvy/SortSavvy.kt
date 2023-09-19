@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger
 
 object SortSavvy : ModInitializer {
     // Initialize the logger here to have access everywhere
-    val LOGGER: Logger = LogManager.getLogger(Constants.MOD_NAME)
+    val logger: Logger = LogManager.getLogger(Constants.modName)
 
     // A companion object to store all resources only available on certain execution times. So watch out when you access them
     object LifecycleGlobals {
@@ -37,7 +37,7 @@ object SortSavvy : ModInitializer {
         // Add a getter that throws if we try to access it at the wrong time
         fun getMinecraftServer(): MinecraftServer = minecraftServer ?: run {
             val msg = "Tried to access the minecraft server global outside its lifecycle"
-            LOGGER.error(msg)
+            logger.error(msg)
             throw IllegalAccessError(msg)
         }
 
@@ -55,7 +55,7 @@ object SortSavvy : ModInitializer {
         // Add a getter that throws if we try to access it at the wrong time
         fun getConfigManager(): ConfigManager = configManager ?: run {
             val msg = "Tried to access the config manager global outside its lifecycle"
-            LOGGER.error(msg)
+            logger.error(msg)
             throw IllegalAccessError(msg)
         }
 
@@ -65,7 +65,7 @@ object SortSavvy : ModInitializer {
         // Add a getter that throws if we try to access it at the wrong time
         fun getPersistentManager(): PersistentManager = persistentManager ?: run {
             val msg = "Tried to access the persistent manager global outside its lifecycle"
-            LOGGER.error(msg)
+            logger.error(msg)
             throw IllegalAccessError(msg)
         }
 
@@ -81,14 +81,14 @@ object SortSavvy : ModInitializer {
 
     // Collection of all needed hardcoded stuff
     object Constants {
-        const val MOD_ID = "sort_savvy"
-        const val MOD_NAME = "SortSavvy"
+        const val modId = "sort_savvy"
+        const val modName = "SortSavvy"
 
-        val itemGroupId = Identifier(MOD_ID, "item_group")
-        val quantumInventoryReaderId = Identifier(MOD_ID, "quantum_inventory_reader")
-        val quantumInventoryReaderEntityId = Identifier(MOD_ID, "quantum_inventory_reader_entity")
-        val idSetterScreenHandlerId = Identifier(MOD_ID, "id_setter_screen_handler")
-        val idSetterScreenSavedNetworkHandlerId = Identifier(MOD_ID, "id_setter_screen_saved_network_handler")
+        val itemGroupId = Identifier(modId, "item_group")
+        val quantumInventoryReaderId = Identifier(modId, "quantum_inventory_reader")
+        val quantumInventoryReaderEntityId = Identifier(modId, "quantum_inventory_reader_entity")
+        val idSetterScreenHandlerId = Identifier(modId, "id_setter_screen_handler")
+        val idSetterScreenSavedNetworkHandlerId = Identifier(modId, "id_setter_screen_saved_network_handler")
     }
 
     // Blocks and Block Entities

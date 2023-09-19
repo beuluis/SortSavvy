@@ -16,8 +16,12 @@ class IdSetterScreenHandler(
 
     // Set all the defaults
     private var pos = BlockPos.ORIGIN
-    private var id: String? = null
-    private var directionToScan: String? = null
+    var id: String? = null
+        // Set setter private since externals should use setId
+        private set
+    var directionToScan: String? = null
+        // Set setter private
+        private set
 
     init {
         // We have different scenarios when the constructor is called. On register, we do not have a buffer when the handler gets returned by the entity we have one
@@ -25,17 +29,9 @@ class IdSetterScreenHandler(
             pos = buf.readBlockPos()
             id = buf.readString()
             directionToScan = buf.readString()
+        } else {
+            SortSavvy.logger.warn("Screen handler revised buffer without readable bytes")
         }
-    }
-
-    // Expose id to not be able to modify it directly
-    fun getId(): String? {
-        return id
-    }
-
-    // Expose directionToScan to not be able to modify it directly
-    fun getDirectionToScan(): String? {
-        return directionToScan
     }
 
     // Setter for id to add some additional logic
