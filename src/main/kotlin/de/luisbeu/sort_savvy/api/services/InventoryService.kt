@@ -1,8 +1,14 @@
 package de.luisbeu.sort_savvy.api.services
 
+import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.api.dtos.Coordinates
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderScannedContent
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderChestScanned
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderDoubleChestScanned
+import de.luisbeu.sort_savvy.api.dtos.ScannedContent
+import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedBase
+import de.luisbeu.sort_savvy.api.exceptions.NoBlockEntityFoundToScan
+import de.luisbeu.sort_savvy.api.exceptions.UnsupportedBlockEntityFoundToScan
 import de.luisbeu.sort_savvy.persistent.PositionalContext
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
@@ -14,8 +20,7 @@ import net.minecraft.util.registry.Registry
 
 object InventoryService {
     // TODO: support vaults
-    // TODO: adapt new data structure for better expandability
-    fun getInventoryContents(inventory: Inventory): List<QuantumInventoryReaderScannedContent> {
+    fun getInventoryContents(inventory: Inventory): List<ScannedContent> {
         return generateSequence(0) { it + 1 }
             .take(inventory.size())
             .map { inventory.getStack(it) }
@@ -34,65 +39,28 @@ object InventoryService {
                 // Check if it has enchantments and return them. If not return null will result in undefined in the JSON object
                 val enchantments = if (stack.hasEnchantments()) stack.enchantments.toList() else null
                 // Construct the data class
-                QuantumInventoryReaderScannedContent(itemId, count, category, durability, damage, enchantments)
+                ScannedContent(itemId, count, category, durability, damage, enchantments)
             }
             .toList()
     }
 
-    // TODO: support vaults
-    fun getInventoryEntityFromScannerPos(
-        positionalContext: PositionalContext,
-    ): Pair<Inventory?, Pair<Coordinates, Coordinates?>> {
-        val server = SortSavvy.LifecycleGlobals.getMinecraftServer()
-        val (x, y, z, toScanDirection, worldRegistryKey) = positionalContext
+    fun scanChestEntity(
+        chestBlockEntity: ChestBlockEntity
+    ): QuantumInventoryReaderChestScanned {
+        return QuantumInventoryReaderChestScanned(
+            Coordinates(chestBlockEntity.pos.y, chestBlockEntity.pos.z, chestBlockEntity.pos.y),
+            getInventoryContents(chestBlockEntity),
+        )
+    }
 
-        // Check the block pos above the scanner
-        val potentialInventoryPos = BlockPos(x, y, z).offset(toScanDirection)
-
-        // Go over the chunk to also handle unloaded chunks
-        val chunkPos = ChunkPos(potentialInventoryPos)
-        val chunk = server.getWorld(worldRegistryKey)?.getChunk(chunkPos.x, chunkPos.z)
-
-        // Check if we have a chunk
-        if (chunk != null) {
-            // Get our potential chest block entity
-            val blockEntity = chunk.getBlockEntity(potentialInventoryPos)
-
-            // Check if we have an entity with an inventory
-            if (blockEntity is ChestBlockEntity) {
-                // Handle double chests by determining the other chest half
-                val facing = ChestBlock.getFacing(blockEntity.cachedState)
-                val potentialDoublePos = potentialInventoryPos.offset(facing)
-                // Get it again from the chunk for unloaded chunks
-                val potentialDoubleBlockEntity = chunk.getBlockEntity(potentialDoublePos)
-
-                // Check if we have an inventory again and if we are facing correctly
-                if (potentialDoubleBlockEntity is ChestBlockEntity && ChestBlock.getFacing(potentialDoubleBlockEntity.cachedState) == facing.opposite) {
-                    val doubleInventory = DoubleInventory(blockEntity, potentialDoubleBlockEntity)
-                    return Pair(
-                        doubleInventory,
-                        Pair(
-                            Coordinates(potentialInventoryPos.x, potentialInventoryPos.y, potentialInventoryPos.z),
-                            Coordinates(potentialDoublePos.x, potentialDoublePos.y, potentialDoublePos.z)
-                        )
-                    )
-                }
-            }
-
-            // Handle single inventories
-            if (blockEntity is Inventory) {
-                return Pair(
-                    blockEntity,
-                    Pair(Coordinates(potentialInventoryPos.x, potentialInventoryPos.y, potentialInventoryPos.z), null)
-                )
-            }
-        }
-
-        // Nothing found or checks failed, return null for inventory and only the first position
-        // TODO: maybe throw?
-        return Pair(
-            null,
-            Pair(Coordinates(potentialInventoryPos.x, potentialInventoryPos.y, potentialInventoryPos.z), null)
+    fun scanDoubleChestEntity(
+        chestBlockEntity: ChestBlockEntity,
+        counterChestBlockEntity: ChestBlockEntity
+    ): QuantumInventoryReaderDoubleChestScanned {
+        return QuantumInventoryReaderDoubleChestScanned(
+            Coordinates(chestBlockEntity.pos.x, chestBlockEntity.pos.y, chestBlockEntity.pos.z),
+            Coordinates(counterChestBlockEntity.pos.x, counterChestBlockEntity.pos.y, counterChestBlockEntity.pos.z),
+            getInventoryContents(DoubleInventory(chestBlockEntity, counterChestBlockEntity)),
         )
     }
 }

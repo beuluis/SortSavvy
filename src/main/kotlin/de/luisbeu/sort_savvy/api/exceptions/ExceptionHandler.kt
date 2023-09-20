@@ -1,6 +1,6 @@
 package de.luisbeu.sort_savvy.api.exceptions
 
-import de.luisbeu.sort_savvy.api.dtos.responses.ExceptionResponseDTO
+import de.luisbeu.sort_savvy.api.dtos.responses.ExceptionResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -15,26 +15,26 @@ object ExceptionHandler {
             is IdParameterNotProvidedException -> {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    ExceptionResponseDTO("id-parameter-not-provided", cause.message ?: "The id parameter was not provided")
+                    ExceptionResponse("id-parameter-not-provided", cause.message ?: "The id parameter was not provided")
                 )
             }
             is QuantumInventoryReaderNotFound -> {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    ExceptionResponseDTO("id-no-found", cause.message ?: "The id parameter was not provided", cause.id)
+                    ExceptionResponse("id-no-found", cause.message ?: "The id parameter was not provided", cause.id)
                 )
             }
-            is NoInventoryFoundToScan -> {
+            is NoBlockEntityFoundToScan -> {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    ExceptionResponseDTO("no-inventory-found", cause.message ?: "No inventory found to scan", cause.scannedCoordinates)
+                    ExceptionResponse("no-inventory-found", cause.message ?: "No inventory found to scan", cause.scannedCoordinates)
                 )
             }
             // Default to internal server error and hide the message to not leak data
             else -> {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    ExceptionResponseDTO("internal-server-error", "An unexpected internal server error occurred")
+                    ExceptionResponse("internal-server-error", "An unexpected internal server error occurred")
                 )
             }
         }
