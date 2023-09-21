@@ -65,8 +65,9 @@ class PersistentManager {
     fun modifyQuantumInventoryReaderData(key: String, modifier: (PositionalContext) -> PositionalContext) {
         // Get the current PositionalContext to pass it to a modifier method
         val currentPositionalContext = dataState.quantumInventoryReaderData[key] ?: run {
-            SortSavvy.logger.error("Could not modify quantum inventory reader data with id: $key")
-            throw Exception() // TODO: ex
+            val msg = "Could not modify quantum inventory reader data with id: $key"
+            SortSavvy.logger.error(msg)
+            throw Exception(msg)
         }
 
         // Pass it and get the updated version
@@ -82,8 +83,9 @@ class PersistentManager {
     fun renameQuantumInventoryReaderData(oldKey: String, newKey: String) {
         // Retrieve the old PositionalContext and remove the old key
         val positionalContext = dataState.quantumInventoryReaderData.remove(oldKey) ?: run {
-            SortSavvy.logger.error("Could not retrieve previous data to rename quantum inventory reader data with id: $oldKey")
-            throw Exception() // TODO: ex
+            val msg = "Could not retrieve previous data to rename quantum inventory reader data with id: $oldKey"
+            SortSavvy.logger.error(msg)
+            throw Exception(msg)
         }
 
         positionalContext.let {

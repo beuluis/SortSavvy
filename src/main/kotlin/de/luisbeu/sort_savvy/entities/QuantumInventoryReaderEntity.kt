@@ -41,8 +41,9 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     private fun getWorldKey(): SerializedWorldRegistryKey {
         val worldRegistryKey = world?.registryKey ?: run {
-            SortSavvy.logger.error("Could not get world for $quantumInventoryReaderId")
-            throw Exception() // TODO: ex
+            val msg = "Could not get world for $quantumInventoryReaderId"
+            SortSavvy.logger.error(msg)
+            throw Exception(msg)
         }
 
         return SerializedWorldRegistryKey(worldRegistryKey.registry.toString(), worldRegistryKey.value.toString())

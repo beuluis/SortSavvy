@@ -33,8 +33,9 @@ object QuantumInventoryReaderService {
         val chunkPos = ChunkPos(potentialInventoryPos)
 
         val world = server.getWorld(RegistryKey.of(Identifier(worldRegistryKey.registryId), Identifier(worldRegistryKey.valueId))) ?: run {
-            SortSavvy.logger.error("Could not get $worldRegistryKey for for $potentialInventoryPos")
-            throw Exception() // TODO: ex
+            val msg = "Could not get ${worldRegistryKey.valueId} for for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}"
+            SortSavvy.logger.error(msg)
+            throw Exception(msg)
         }
 
         val chunk = world.getChunk(chunkPos.x, chunkPos.z)
