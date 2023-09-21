@@ -11,7 +11,9 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 
-data class PositionalContext(val x: Int, val y: Int, val z: Int, val toScanDirection: Direction, val worldRegistryKey: RegistryKey<World>)
+data class SerializedWorldRegistryKey(val registryId: String, val valueId: String)
+
+data class PositionalContext(val x: Int, val y: Int, val z: Int, val toScanDirection: Direction, val worldRegistryKey: SerializedWorldRegistryKey)
 
 // Model data class to specify structure and make serialization easier
 data class DataStateModel(
@@ -20,7 +22,7 @@ data class DataStateModel(
 
 class PersistentManager {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    // Not sure if the data directory is the best since it normally is dimension bases and for the overworld. But we write json anyway and not nbt so i guess we are good.
+    // Not sure if the data directory is the best since it normally is dimension bases and for the overworld. But we write json anyway and not nbt, so I guess we are good.
     private val dataStateFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("data/SortSavvy.json").toString())
     private var dataState: DataStateModel
 
@@ -34,6 +36,8 @@ class PersistentManager {
                 dataState = DataStateModel()
                 saveData()
             }
+
+            SortSavvy.logger.error(dataState)
         } catch (error: Exception) {
             SortSavvy.logger.error("Data could not be loaded: ${error.message}")
             throw error

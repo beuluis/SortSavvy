@@ -14,8 +14,10 @@ import de.luisbeu.sort_savvy.api.exceptions.UnsupportedBlockEntityFoundToScan
 import de.luisbeu.sort_savvy.persistent.PositionalContext
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
+import net.minecraft.util.registry.RegistryKey
 
 object QuantumInventoryReaderService {
     private fun scanBlockEntityFromScannerPos(
@@ -30,8 +32,8 @@ object QuantumInventoryReaderService {
         // Go over the chunk to also handle unloaded chunks
         val chunkPos = ChunkPos(potentialInventoryPos)
 
-        val world = server.getWorld(worldRegistryKey) ?: run {
-            SortSavvy.logger.error("Could not get world for for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}")
+        val world = server.getWorld(RegistryKey.of(Identifier(worldRegistryKey.registryId), Identifier(worldRegistryKey.valueId))) ?: run {
+            SortSavvy.logger.error("Could not get $worldRegistryKey for for $potentialInventoryPos")
             throw Exception() // TODO: ex
         }
 
@@ -82,7 +84,7 @@ object QuantumInventoryReaderService {
             positionalContext.y,
             positionalContext.z,
             positionalContext.toScanDirection,
-            positionalContext.worldRegistryKey
+            positionalContext.worldRegistryKey.valueId
         )
 
         try {

@@ -40,7 +40,7 @@ object StorageBlockEntityService {
         chestBlockEntity: ChestBlockEntity
     ): QuantumInventoryReaderChestScanned {
         return QuantumInventoryReaderChestScanned(
-            Coordinates(chestBlockEntity.pos.y, chestBlockEntity.pos.z, chestBlockEntity.pos.y),
+            Coordinates(chestBlockEntity.pos.y, chestBlockEntity.pos.y, chestBlockEntity.pos.z),
             getInventoryContents(chestBlockEntity),
         )
     }

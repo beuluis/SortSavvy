@@ -3,6 +3,7 @@ package de.luisbeu.sort_savvy.entities
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
 import de.luisbeu.sort_savvy.persistent.PositionalContext
+import de.luisbeu.sort_savvy.persistent.SerializedWorldRegistryKey
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -38,9 +39,13 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
         quantumInventoryReaderId = nbt.getString("quantumInventoryReaderId")
     }
 
-    private fun getWorldKey(): RegistryKey<World> = world?.registryKey ?: run {
-        SortSavvy.logger.error("Could not get world for $quantumInventoryReaderId")
-        throw Exception() // TODO: ex
+    private fun getWorldKey(): SerializedWorldRegistryKey {
+        val worldRegistryKey = world?.registryKey ?: run {
+            SortSavvy.logger.error("Could not get world for $quantumInventoryReaderId")
+            throw Exception() // TODO: ex
+        }
+
+        return SerializedWorldRegistryKey(worldRegistryKey.registry.toString(), worldRegistryKey.value.toString())
     }
 
     // Expose a function to set the quantum inventory reader id from the screen
