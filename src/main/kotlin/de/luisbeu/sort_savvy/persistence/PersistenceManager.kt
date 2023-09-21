@@ -36,8 +36,6 @@ class PersistentManager {
                 dataState = DataStateModel()
                 saveData()
             }
-
-            SortSavvy.logger.error(dataState)
         } catch (error: Exception) {
             SortSavvy.logger.error("Data could not be loaded: ${error.message}")
             throw error
