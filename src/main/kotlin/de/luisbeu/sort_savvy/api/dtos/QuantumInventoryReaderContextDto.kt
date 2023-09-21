@@ -2,7 +2,8 @@ package de.luisbeu.sort_savvy.api.dtos
 
 import net.minecraft.util.math.Direction
 
-data class QuantumInventoryReaderContext (
+// Context for the quantum inventory reader
+data class QuantumInventoryReaderContextDto (
     val id: String,
     val x: Int,
     val y: Int,

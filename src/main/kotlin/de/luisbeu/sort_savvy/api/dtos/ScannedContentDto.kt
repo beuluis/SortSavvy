@@ -1,6 +1,7 @@
 package de.luisbeu.sort_savvy.api.dtos
 
-data class ScannedContent (
+// Scan result items. Inspired by the minecrafts item class
+data class ScannedContentDto (
     val id: String,
     val amount: Int,
     val category: String?,

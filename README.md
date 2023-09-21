@@ -4,22 +4,21 @@
 [![Issues][issues-shield]][issues-url]
 
 <!-- PROJECT HEADER -->
-<br />
 <p align="center">
-  <img src="src/main/resources/assets/sort_savvy/icon.png" alt="Logo" height="60">
+    <img src="src/main/resources/assets/sort_savvy/icon.png" alt="Logo" height="60">
 
-<h3 align="center">SortSavvy</h3>
+    <h3 align="center">SortSavvy</h3>
 
-  <p align="center">
-    A fabric mod to organize and have fun with sorting systems
-    <br />
-    <br />
-    ·
-    <a href="https://github.com/beuluis/SortSavvy/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/beuluis/SortSavvy/issues">Request Feature</a>
-    ·
-  </p>
+    <p align="center">
+        A fabric mod to organize and have fun with sorting systems
+        <br />
+        <br />
+        ·
+        <a href="https://github.com/beuluis/SortSavvy/issues">Report Bug</a>
+        ·
+        <a href="https://github.com/beuluis/SortSavvy/issues">Request Feature</a>
+        ·
+    </p>
 </p>
 
 <!-- ABOUT THE PROJECT -->
@@ -31,7 +30,12 @@ functionality.
 
 The current features are:
 
-- Adding a block that exposes the content of a chest via a rest API
+- A block that exposes the content of a chest via a rest API
+
+Planned features are:
+
+- A block that allows to set Create filters via a rest API
+- A block that send a message over MQTT or websocket when activated via redstone
 
 ## Installation
 
@@ -39,134 +43,43 @@ Download the jar file from CurseForge or install it directly in the launcher.
 
 ## Blocks
 
-### QuantumChestReader
+### QuantumInventoryReader
 
-![QuantumChestReader](images/QuantumChestReader.png)
+![QuantumInventoryReader](images/QuantumInventoryReader.png)
 
 #### Crafting
 
-![QuantumChestReaderRecipe](images/QuantumChestReaderRecipe.png)
+![QuantumInventoryReaderRecipe](images/QuantumInventoryReaderRecipe.png)
 
 ## API
 
-Port for now `8082`
+![APIExample](images/ApiScreenshot.png) <!-- TODO: update example -->
 
-![APIExample](images/ApiScreenshot.png)
+### Config
+
+The config can be found in your world folder in the subdirectory `serverconfig`
 
 ### Authentication
 
-All endpoints need to be called with a bearer token.
+All endpoints need to be called with a bearer token. The token can be found in the config file.
 
 ```
 Authorization: Bearer <token>
 ```
 
-### `GET /quantum-chest-reader/{quantumChestReaderId}`
+### `GET /quantum-inventory-reader/{quantumChestReaderId}`
 
-Get a QuantumChestReader results based on the provided ID.
+OpenAPI docs WIP
 
-#### `200 OK` request successful
+### `GET /quantum-inventory-reader/all`
 
-Returns [QuantumChestReaderResponse](#quantumchestreaderresponse)
-
-#### `400 BAD REQUEST` parameter was not provided
-
-Returns [ErrorResponse](#errorresponse) with
-
-```JSON
-{
-  "error": "id-parameter-not-provided",
-  "message": "ID parameter not provided"
-}
-```
-
-#### `404 NOT FOUND` QuantumChestReader with the provided it not found
-
-Returns [ErrorResponse](#errorresponse) with
-
-```JSON
-{
-  "error": "id-no-found",
-  "message": "QuantumChestReader with ID $quantumChestReaderId not found"
-}
-```
-
-#### `404 NOT FOUND` inventory not found
-
-Returns [ErrorResponse](#errorresponse) with
-
-```JSON
-{
-  "error": "no-inventory-found",
-  "message": "No inventory found at x=$x y=$y z=$z",
-  "context": {
-    "x": 12,
-    "y": 64,
-    "z": 12
-  }
-}
-```
-
-### `GET /quantum-chest-reader/all`
-
-Get all QuantumChestReader results.
-
-#### `200 OK` request successful
-
-Returns array of [QuantumChestReaderResponse](#quantumchestreaderresponse)
-
-### Interfaces
-
-#### `Coordinates`
-
-```typescript
-interface Coordinates {
-  x: number;
-  y: number;
-  z: number
-}
-```
-
-#### `QuantumChestReaderScannedContent`
-
-```typescript
-interface QuantumChestReaderScannedContent {
-    id: string;
-    amount: number;
-    category?: string;
-    durability?: number;
-    damage?: number;
-    enchantments?: unknown[]; // Did not looked up the structure but the java class is 'NbtElement'
-}
-```
-
-#### `QuantumChestReaderResponse`
-
-```typescript
-interface QuantumChestReaderResponse {
-  quantumChestReaderId: string;
-  quantumChestReaderCoordinates: Coordinates;
-  primaryInventoryCoordinates?: Coordinates;
-  secondaryInventoryCoordinates?: Coordinates;
-  scannedContent: QuantumChestReaderScannedContent[]
-}
-```
-
-#### `ErrorResponse`
-
-```typescript
-interface Coordinates {
-  error: string;
-  message: string;
-  context?: unknown;
-}
-```
+OpenAPI docs WIP
 
 ## TODO
 
 - [ ] Add filter organize block
+- [ ] Add redstone websocket block
 - [ ] Add command to rescan all placed QuantumChestReaders
-- [ ] Add support for other dimensions
 
 <!-- CONTRIBUTING -->
 

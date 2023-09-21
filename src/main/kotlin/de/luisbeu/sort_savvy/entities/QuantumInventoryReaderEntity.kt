@@ -2,8 +2,8 @@ package de.luisbeu.sort_savvy.entities
 
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
-import de.luisbeu.sort_savvy.persistent.PositionalContext
-import de.luisbeu.sort_savvy.persistent.SerializedWorldRegistryKey
+import de.luisbeu.sort_savvy.persistence.PositionalContext
+import de.luisbeu.sort_savvy.persistence.SerializedWorldRegistryKey
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -16,8 +16,6 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.registry.RegistryKey
-import net.minecraft.world.World
 
 // TODO: change ktor logger to own
 class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :

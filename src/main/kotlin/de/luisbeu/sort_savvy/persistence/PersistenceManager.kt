@@ -1,12 +1,10 @@
-package de.luisbeu.sort_savvy.persistent
+package de.luisbeu.sort_savvy.persistence
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import de.luisbeu.sort_savvy.SortSavvy
 import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.Direction
-import net.minecraft.util.registry.RegistryKey
-import net.minecraft.world.World
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter

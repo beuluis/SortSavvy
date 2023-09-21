@@ -1,6 +1,6 @@
 package de.luisbeu.sort_savvy.api.exceptions
 
-import de.luisbeu.sort_savvy.api.dtos.responses.ExceptionResponse
+import de.luisbeu.sort_savvy.api.dtos.responses.ExceptionResponseDto
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -15,26 +15,26 @@ object ExceptionHandler {
             is IdParameterNotProvidedException -> {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    ExceptionResponse("id-parameter-not-provided", cause.message ?: "The id parameter was not provided")
+                    ExceptionResponseDto("id-parameter-not-provided", cause.message ?: "The id parameter was not provided")
                 )
             }
-            is QuantumInventoryReaderNotFound -> {
+            is QuantumInventoryReaderNotFoundException -> {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    ExceptionResponse("id-no-found", cause.message ?: "The id parameter was not provided", cause.id)
+                    ExceptionResponseDto("id-no-found", cause.message ?: "The id parameter was not provided", cause.id)
                 )
             }
-            is NoBlockEntityFoundToScan -> {
+            is NoBlockEntityFoundToScanException -> {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    ExceptionResponse("no-inventory-found", cause.message ?: "No inventory found to scan", cause.scannedCoordinates)
+                    ExceptionResponseDto("no-inventory-found", cause.message ?: "No inventory found to scan", cause.scannedCoordinates)
                 )
             }
             // Default to internal server error and hide the message to not leak data
             else -> {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    ExceptionResponse("internal-server-error", "An unexpected internal server error occurred")
+                    ExceptionResponseDto("internal-server-error", "An unexpected internal server error occurred")
                 )
             }
         }

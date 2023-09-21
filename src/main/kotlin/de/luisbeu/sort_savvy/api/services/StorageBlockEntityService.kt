@@ -1,18 +1,17 @@
 package de.luisbeu.sort_savvy.api.services
 
-import de.luisbeu.sort_savvy.api.dtos.Coordinates
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderChestScanned
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderDoubleChestScanned
-import de.luisbeu.sort_savvy.api.dtos.ScannedContent
+import de.luisbeu.sort_savvy.api.dtos.CoordinatesDto
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderChestScannedDto
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderDoubleChestScannedDto
+import de.luisbeu.sort_savvy.api.dtos.ScannedContentDto
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.util.registry.Registry
 
-// TODO: add suffix to names
 object StorageBlockEntityService {
     // TODO: support vaults
-    private fun getInventoryContents(inventory: Inventory): List<ScannedContent> {
+    private fun getInventoryContents(inventory: Inventory): List<ScannedContentDto> {
         return generateSequence(0) { it + 1 }
             .take(inventory.size())
             .map { inventory.getStack(it) }
@@ -31,27 +30,29 @@ object StorageBlockEntityService {
                 // Check if it has enchantments and return them. If not return null will result in undefined in the JSON object
                 val enchantments = if (stack.hasEnchantments()) stack.enchantments.toList() else null
                 // Construct the data class
-                ScannedContent(itemId, count, category, durability, damage, enchantments)
+                ScannedContentDto(itemId, count, category, durability, damage, enchantments)
             }
             .toList()
     }
 
+    // Handler for single chests
     fun scanChestEntity(
         chestBlockEntity: ChestBlockEntity
-    ): QuantumInventoryReaderChestScanned {
-        return QuantumInventoryReaderChestScanned(
-            Coordinates(chestBlockEntity.pos.y, chestBlockEntity.pos.y, chestBlockEntity.pos.z),
+    ): QuantumInventoryReaderChestScannedDto {
+        return QuantumInventoryReaderChestScannedDto(
+            CoordinatesDto(chestBlockEntity.pos.y, chestBlockEntity.pos.y, chestBlockEntity.pos.z),
             getInventoryContents(chestBlockEntity),
         )
     }
 
+    // Handler for double chests
     fun scanDoubleChestEntity(
         chestBlockEntity: ChestBlockEntity,
         counterChestBlockEntity: ChestBlockEntity
-    ): QuantumInventoryReaderDoubleChestScanned {
-        return QuantumInventoryReaderDoubleChestScanned(
-            Coordinates(chestBlockEntity.pos.x, chestBlockEntity.pos.y, chestBlockEntity.pos.z),
-            Coordinates(counterChestBlockEntity.pos.x, counterChestBlockEntity.pos.y, counterChestBlockEntity.pos.z),
+    ): QuantumInventoryReaderDoubleChestScannedDto {
+        return QuantumInventoryReaderDoubleChestScannedDto(
+            CoordinatesDto(chestBlockEntity.pos.x, chestBlockEntity.pos.y, chestBlockEntity.pos.z),
+            CoordinatesDto(counterChestBlockEntity.pos.x, counterChestBlockEntity.pos.y, counterChestBlockEntity.pos.z),
             getInventoryContents(DoubleInventory(chestBlockEntity, counterChestBlockEntity)),
         )
     }

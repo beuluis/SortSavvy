@@ -1,8 +1,8 @@
 package de.luisbeu.sort_savvy.api.dtos.responses
 
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderContext
-import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedBase
-import de.luisbeu.sort_savvy.api.dtos.responses.interfaces.QuantumInventoryReaderResponseBase
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderContextDto
+import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedInterface
+import de.luisbeu.sort_savvy.api.dtos.responses.interfaces.QuantumInventoryReaderResponseInterface
 
 // TODO: move
 enum class InventoryType {
@@ -11,7 +11,8 @@ enum class InventoryType {
     VAULT
 }
 
-class QuantumInventoryReaderResponse (
-    override val quantumInventoryReaderContext: QuantumInventoryReaderContext,
-    val result: QuantumInventoryReaderScannedBase,
-): QuantumInventoryReaderResponseBase
+// Response of the quantum inventory reader scan result
+class QuantumInventoryReaderResponseDto (
+    override val quantumInventoryReaderContext: QuantumInventoryReaderContextDto,
+    val result: QuantumInventoryReaderScannedInterface,
+): QuantumInventoryReaderResponseInterface

@@ -1,10 +1,11 @@
 package de.luisbeu.sort_savvy.api.dtos.responses
 
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderContext
-import de.luisbeu.sort_savvy.api.dtos.responses.interfaces.QuantumInventoryReaderResponseBase
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderContextDto
+import de.luisbeu.sort_savvy.api.dtos.responses.interfaces.QuantumInventoryReaderResponseInterface
 
-class QuantumInventoryReaderErrorResponse (
-    override val quantumInventoryReaderContext: QuantumInventoryReaderContext,
+// An "error" like response hydrated with additional context
+class QuantumInventoryReaderErrorResponseDto (
+    override val quantumInventoryReaderContext: QuantumInventoryReaderContextDto,
     error: String,
     message: String,
-): QuantumInventoryReaderResponseBase, ExceptionResponse(error, message)
+): QuantumInventoryReaderResponseInterface, ExceptionResponseDto(error, message)

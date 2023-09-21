@@ -1,7 +1,6 @@
 package de.luisbeu.sort_savvy.api.plugins
 
 import de.luisbeu.sort_savvy.SortSavvy
-import de.luisbeu.sort_savvy.config.SortSavvyConfigModel
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 

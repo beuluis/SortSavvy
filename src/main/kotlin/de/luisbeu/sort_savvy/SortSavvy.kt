@@ -7,7 +7,7 @@ import de.luisbeu.sort_savvy.events.ServerStartedHandler
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
 import de.luisbeu.sort_savvy.events.ServerStoppingHandler
 import de.luisbeu.sort_savvy.network.IdSetterScreenSavedNetworkHandler
-import de.luisbeu.sort_savvy.persistent.PersistentManager
+import de.luisbeu.sort_savvy.persistence.PersistentManager
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents

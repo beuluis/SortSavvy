@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import net.minecraft.server.MinecraftServer
 
 // Routing definitions. Call services to separate them from http handling
 fun Application.configureRouting() {

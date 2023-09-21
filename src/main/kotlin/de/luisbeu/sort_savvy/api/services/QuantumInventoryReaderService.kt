@@ -2,16 +2,16 @@ package de.luisbeu.sort_savvy.api.services
 
 import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity
 import de.luisbeu.sort_savvy.SortSavvy
-import de.luisbeu.sort_savvy.api.dtos.Coordinates
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderContext
-import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedBase
-import de.luisbeu.sort_savvy.api.dtos.responses.QuantumInventoryReaderErrorResponse
-import de.luisbeu.sort_savvy.api.dtos.responses.QuantumInventoryReaderResponse
-import de.luisbeu.sort_savvy.api.dtos.responses.interfaces.QuantumInventoryReaderResponseBase
-import de.luisbeu.sort_savvy.api.exceptions.NoBlockEntityFoundToScan
-import de.luisbeu.sort_savvy.api.exceptions.QuantumInventoryReaderNotFound
-import de.luisbeu.sort_savvy.api.exceptions.UnsupportedBlockEntityFoundToScan
-import de.luisbeu.sort_savvy.persistent.PositionalContext
+import de.luisbeu.sort_savvy.api.dtos.CoordinatesDto
+import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderContextDto
+import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedInterface
+import de.luisbeu.sort_savvy.api.dtos.responses.QuantumInventoryReaderErrorResponseDto
+import de.luisbeu.sort_savvy.api.dtos.responses.QuantumInventoryReaderResponseDto
+import de.luisbeu.sort_savvy.api.dtos.responses.interfaces.QuantumInventoryReaderResponseInterface
+import de.luisbeu.sort_savvy.api.exceptions.NoBlockEntityFoundToScanException
+import de.luisbeu.sort_savvy.api.exceptions.QuantumInventoryReaderNotFoundException
+import de.luisbeu.sort_savvy.api.exceptions.UnsupportedBlockEntityFoundToScanException
+import de.luisbeu.sort_savvy.persistence.PositionalContext
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.util.Identifier
@@ -22,7 +22,7 @@ import net.minecraft.util.registry.RegistryKey
 object QuantumInventoryReaderService {
     private fun scanBlockEntityFromScannerPos(
         positionalContext: PositionalContext,
-    ): QuantumInventoryReaderScannedBase {
+    ): QuantumInventoryReaderScannedInterface {
         val server = SortSavvy.LifecycleGlobals.getMinecraftServer()
         val (x, y, z, toScanDirection, worldRegistryKey) = positionalContext
 
@@ -32,6 +32,7 @@ object QuantumInventoryReaderService {
         // Go over the chunk to also handle unloaded chunks
         val chunkPos = ChunkPos(potentialInventoryPos)
 
+        // Retrieve the world and chunk based on the offseted pos
         val world = server.getWorld(RegistryKey.of(Identifier(worldRegistryKey.registryId), Identifier(worldRegistryKey.valueId))) ?: run {
             val msg = "Could not get ${worldRegistryKey.valueId} for for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}"
             SortSavvy.logger.error(msg)
@@ -42,9 +43,10 @@ object QuantumInventoryReaderService {
 
         val blockEntity = chunk.getBlockEntity(potentialInventoryPos) ?: run {
             SortSavvy.logger.warn("Could not get block entity for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}")
-            throw NoBlockEntityFoundToScan(Coordinates(x, y, z))
+            throw NoBlockEntityFoundToScanException(CoordinatesDto(x, y, z))
         }
 
+        // Check what entity we are dealing with to decide what handler to call
         when (blockEntity) {
             is ChestBlockEntity -> {
                 // Handle double chests by determining the other chest half
@@ -67,19 +69,20 @@ object QuantumInventoryReaderService {
             }
             else -> {
                 SortSavvy.logger.warn("Found a unsupported block entity for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}")
-                throw UnsupportedBlockEntityFoundToScan(Coordinates(x, y, z))
+                throw UnsupportedBlockEntityFoundToScanException(CoordinatesDto(x, y, z))
             }
         }
     }
 
-    fun getInventoryContentByQuantumInventoryReaderId(quantumInventoryReaderId: String): QuantumInventoryReaderResponseBase {
+    fun getInventoryContentByQuantumInventoryReaderId(quantumInventoryReaderId: String): QuantumInventoryReaderResponseInterface {
         // Read the saved data
         val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
 
         // Try to get the data by id form the persisted data. Throw if not found
-        val  positionalContext = persistentManager.getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: throw QuantumInventoryReaderNotFound(quantumInventoryReaderId)
+        val  positionalContext = persistentManager.getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: throw QuantumInventoryReaderNotFoundException(quantumInventoryReaderId)
 
-        val quantumInventoryReaderContext = QuantumInventoryReaderContext(
+        // Already construct out context class to have it in the try and catch
+        val quantumInventoryReaderContextDto = QuantumInventoryReaderContextDto(
             quantumInventoryReaderId,
             positionalContext.x,
             positionalContext.y,
@@ -91,19 +94,20 @@ object QuantumInventoryReaderService {
         try {
             val scannedBase = scanBlockEntityFromScannerPos(positionalContext)
 
-            return QuantumInventoryReaderResponse(quantumInventoryReaderContext, scannedBase)
+            return QuantumInventoryReaderResponseDto(quantumInventoryReaderContextDto, scannedBase)
         } catch (error: Exception) {
-            if (error is NoBlockEntityFoundToScan) {
-                return QuantumInventoryReaderErrorResponse(
-                    quantumInventoryReaderContext,
+            // Some exception need to be hydrated with additional context
+            if (error is NoBlockEntityFoundToScanException) {
+                return QuantumInventoryReaderErrorResponseDto(
+                    quantumInventoryReaderContextDto,
                     "no-block-entity-found-to-scan",
                     "No block entity was found at the to scan direction."
                 )
             }
 
-            if (error is UnsupportedBlockEntityFoundToScan) {
-                return QuantumInventoryReaderErrorResponse(
-                    quantumInventoryReaderContext,
+            if (error is UnsupportedBlockEntityFoundToScanException) {
+                return QuantumInventoryReaderErrorResponseDto(
+                    quantumInventoryReaderContextDto,
                     "unsupported-block-entity-found-to-scan",
                     "An unsupported block entity was found at the to scan direction."
                 )
@@ -113,7 +117,7 @@ object QuantumInventoryReaderService {
         }
     }
 
-    fun getAllInventoryContentsFromQuantumInventoryReaders(): List<QuantumInventoryReaderResponseBase> {
+    fun getAllInventoryContentsFromQuantumInventoryReaders(): List<QuantumInventoryReaderResponseInterface> {
         // Read the saved data
         val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
 
@@ -121,7 +125,7 @@ object QuantumInventoryReaderService {
         val  quantumInventoryReaderData = persistentManager.getQuantumInventoryReaderData()
 
         // Construct an empty list of the data class we want to return
-        val quantumInventoryReaderResponses = mutableListOf<QuantumInventoryReaderResponseBase>()
+        val quantumInventoryReaderResponses = mutableListOf<QuantumInventoryReaderResponseInterface>()
 
         // Read and loop over our saved data
         for ((quantumInventoryReaderId) in quantumInventoryReaderData) {
