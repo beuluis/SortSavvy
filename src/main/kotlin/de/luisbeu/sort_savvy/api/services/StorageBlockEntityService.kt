@@ -1,26 +1,18 @@
 package de.luisbeu.sort_savvy.api.services
 
-import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity
-import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.api.dtos.Coordinates
 import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderChestScanned
 import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderDoubleChestScanned
 import de.luisbeu.sort_savvy.api.dtos.ScannedContent
-import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedBase
-import de.luisbeu.sort_savvy.api.exceptions.NoBlockEntityFoundToScan
-import de.luisbeu.sort_savvy.api.exceptions.UnsupportedBlockEntityFoundToScan
-import de.luisbeu.sort_savvy.persistent.PositionalContext
-import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.registry.Registry
 
-object InventoryService {
+// TODO: add suffix to names
+object StorageBlockEntityService {
     // TODO: support vaults
-    fun getInventoryContents(inventory: Inventory): List<ScannedContent> {
+    private fun getInventoryContents(inventory: Inventory): List<ScannedContent> {
         return generateSequence(0) { it + 1 }
             .take(inventory.size())
             .map { inventory.getStack(it) }

@@ -29,10 +29,13 @@ object QuantumInventoryReaderService {
 
         // Go over the chunk to also handle unloaded chunks
         val chunkPos = ChunkPos(potentialInventoryPos)
-        val chunk = server.getWorld(worldRegistryKey)?.getChunk(chunkPos.x, chunkPos.z) ?: run {
-            SortSavvy.logger.error("Could not get chunk for x=${chunkPos.x} z=${chunkPos.z}")
+
+        val world = server.getWorld(worldRegistryKey) ?: run {
+            SortSavvy.logger.error("Could not get world for for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}")
             throw Exception() // TODO: ex
         }
+
+        val chunk = world.getChunk(chunkPos.x, chunkPos.z)
 
         val blockEntity = chunk.getBlockEntity(potentialInventoryPos) ?: run {
             SortSavvy.logger.warn("Could not get block entity for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}")
@@ -50,10 +53,10 @@ object QuantumInventoryReaderService {
                 val potentialDoubleBlockEntity = chunk.getBlockEntity(potentialDoublePos)
 
                 if (potentialDoubleBlockEntity is ChestBlockEntity && ChestBlock.getFacing(potentialDoubleBlockEntity.cachedState) == facing.opposite) {
-                    return InventoryService.scanDoubleChestEntity(blockEntity, potentialDoubleBlockEntity)
+                    return StorageBlockEntityService.scanDoubleChestEntity(blockEntity, potentialDoubleBlockEntity)
                 }
 
-                return InventoryService.scanChestEntity(blockEntity)
+                return StorageBlockEntityService.scanChestEntity(blockEntity)
             }
             is ItemVaultBlockEntity -> {
                 // TODO:

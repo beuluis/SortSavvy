@@ -29,8 +29,6 @@ class IdSetterScreenHandler(
             pos = buf.readBlockPos()
             id = buf.readString()
             directionToScan = buf.readString()
-        } else {
-            SortSavvy.logger.warn("Screen handler revised buffer without readable bytes")
         }
     }
 
