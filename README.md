@@ -4,21 +4,22 @@
 [![Issues][issues-shield]][issues-url]
 
 <!-- PROJECT HEADER -->
+<br />
 <p align="center">
-    <img src="src/main/resources/assets/sort_savvy/icon.png" alt="Logo" height="60">
+  <img src="src/main/resources/assets/sort_savvy/icon.png" alt="Logo" height="64">
 
-    <h3 align="center">SortSavvy</h3>
+<h3 align="center">SortSavvy</h3>
 
-    <p align="center">
-        A fabric mod to organize and have fun with sorting systems
-        <br />
-        <br />
-        ·
-        <a href="https://github.com/beuluis/SortSavvy/issues">Report Bug</a>
-        ·
-        <a href="https://github.com/beuluis/SortSavvy/issues">Request Feature</a>
-        ·
-    </p>
+  <p align="center">
+    A fabric mod to organize and have fun with sorting systems
+    <br />
+    <br />
+    ·
+    <a href="https://github.com/beuluis/SortSavvy/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/beuluis/SortSavvy/issues">Request Feature</a>
+    ·
+  </p>
 </p>
 
 <!-- ABOUT THE PROJECT -->
