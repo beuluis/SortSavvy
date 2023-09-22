@@ -7,7 +7,7 @@ import de.luisbeu.sort_savvy.api.dtos.responses.InventoryType
 open class QuantumInventoryReaderDoubleChestScannedDto (
     val scannedChestCoordinates: CoordinatesDto,
     val counterPartChestCoordinates: CoordinatesDto,
-    val scannedContents: List<ScannedContentDto>,
+    val scannedContents: List<ItemDto>,
 ): QuantumInventoryReaderScannedInterface {
     override val inventoryType: InventoryType = InventoryType.DOUBLE_CHEST
 }

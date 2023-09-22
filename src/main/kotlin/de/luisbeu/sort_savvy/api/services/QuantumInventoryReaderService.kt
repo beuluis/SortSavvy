@@ -64,8 +64,7 @@ object QuantumInventoryReaderService {
                 return StorageBlockEntityService.scanChestEntity(blockEntity)
             }
             is ItemVaultBlockEntity -> {
-                // TODO:
-                throw NotImplementedError()
+                return StorageBlockEntityService.scanItemVaultEntity(blockEntity)
             }
             else -> {
                 SortSavvy.logger.warn("Found a unsupported block entity for x=${potentialInventoryPos.x} y=${potentialInventoryPos.y} z=${potentialInventoryPos.z}")

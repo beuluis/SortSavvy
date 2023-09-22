@@ -1,17 +1,16 @@
 package de.luisbeu.sort_savvy.api.services
 
-import de.luisbeu.sort_savvy.api.dtos.CoordinatesDto
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderChestScannedDto
-import de.luisbeu.sort_savvy.api.dtos.QuantumInventoryReaderDoubleChestScannedDto
-import de.luisbeu.sort_savvy.api.dtos.ScannedContentDto
+import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity
+import de.luisbeu.sort_savvy.SortSavvy
+import de.luisbeu.sort_savvy.api.dtos.*
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.inventory.DoubleInventory
 import net.minecraft.inventory.Inventory
+import net.minecraft.item.ItemStack
 import net.minecraft.util.registry.Registry
 
 object StorageBlockEntityService {
-    // TODO: support vaults
-    private fun getInventoryContents(inventory: Inventory): List<ScannedContentDto> {
+    private fun getInventoryContents(inventory: Inventory): List<ItemDto> {
         return generateSequence(0) { it + 1 }
             .take(inventory.size())
             .map { inventory.getStack(it) }
@@ -30,9 +29,16 @@ object StorageBlockEntityService {
                 // Check if it has enchantments and return them. If not return null will result in undefined in the JSON object
                 val enchantments = if (stack.hasEnchantments()) stack.enchantments.toList() else null
                 // Construct the data class
-                ScannedContentDto(itemId, count, category, durability, damage, enchantments)
+                ItemDto(itemId, count, category, durability, damage, enchantments)
             }
             .toList()
+    }
+
+    // Handler for item vaults
+    fun scanItemVaultEntity(
+        itemVaultBlockEntity: ItemVaultBlockEntity
+    ): QuantumInventoryReaderItemVaultScannedDto {
+        throw NotImplementedError()
     }
 
     // Handler for single chests

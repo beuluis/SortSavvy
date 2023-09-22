@@ -4,10 +4,10 @@ import de.luisbeu.sort_savvy.api.dtos.interfaces.QuantumInventoryReaderScannedIn
 import de.luisbeu.sort_savvy.api.dtos.responses.InventoryType
 
 // Extend the interface to be returnable and add additional inventory specific data
-open class QuantumInventoryReaderVaultScannedDto (
+open class QuantumInventoryReaderItemVaultScannedDto (
     val scannedChestCoordinates: CoordinatesDto,
-    val vaultControllerCoordinates: CoordinatesDto,
-    val scannedContents: Any, // TODO: replace when content is known
+    val itemVaultControllerCoordinates: CoordinatesDto,
+    val scannedContents: ItemDto,
 ): QuantumInventoryReaderScannedInterface {
     override val inventoryType: InventoryType = InventoryType.VAULT
 }
