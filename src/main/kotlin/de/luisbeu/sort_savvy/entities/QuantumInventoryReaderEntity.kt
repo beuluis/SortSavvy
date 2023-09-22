@@ -2,6 +2,7 @@ package de.luisbeu.sort_savvy.entities
 
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.network.IdSetterScreenHandler
+import de.luisbeu.sort_savvy.persistence.PersistentManager
 import de.luisbeu.sort_savvy.persistence.PositionalContext
 import de.luisbeu.sort_savvy.persistence.SerializedWorldRegistryKey
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
@@ -49,13 +50,10 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // Expose a function to set the quantum inventory reader id from the screen
     override fun setId(newId: String, player: ServerPlayerEntity?) {
-        // Read the saved data
-        val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
-
         if (newId.isEmpty() && this.quantumInventoryReaderId.isNotEmpty()) {
             val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
 
-            persistentManager.deleteQuantumInventoryReaderData(this.quantumInventoryReaderId)
+            PersistentManager.deleteQuantumInventoryReaderData(this.quantumInventoryReaderId)
             this.quantumInventoryReaderId = ""
 
             // When it was triggered by a player send a message
@@ -63,16 +61,16 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
         } else if (this.quantumInventoryReaderId.isNotEmpty() && newId != this.quantumInventoryReaderId) {
             val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
 
-            persistentManager.renameQuantumInventoryReaderData(this.quantumInventoryReaderId, newId)
+            PersistentManager.renameQuantumInventoryReaderData(this.quantumInventoryReaderId, newId)
             this.quantumInventoryReaderId = newId
 
             // When it was triggered by a player send a message
             player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.renamedDataEntry", oldQuantumInventoryReaderId, newId), true)
         } else if (this.quantumInventoryReaderId != newId) {
-            if (persistentManager.getQuantumInventoryReaderData().containsKey(newId)) {
+            if (PersistentManager.getQuantumInventoryReaderData().containsKey(newId)) {
                 player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.dataEntryAlreadyExists", newId), true)
             } else {
-                persistentManager.addQuantumInventoryReaderData(newId, PositionalContext(pos.x, pos.y, pos.z, Direction.UP, getWorldKey()))
+                PersistentManager.addQuantumInventoryReaderData(newId, PositionalContext(pos.x, pos.y, pos.z, Direction.UP, getWorldKey()))
                 this.quantumInventoryReaderId = newId
                 // When it was triggered by a player send a message
                 player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.newDataEntry", this.quantumInventoryReaderId), true)
@@ -85,10 +83,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // Expose a function to set the quantum inventory reader to scan direction from the screen
     fun setToScanDirection(toScanDirection: Direction, player: ServerPlayerEntity?) {
-        // Read the saved data
-        val persistentManager = SortSavvy.LifecycleGlobals.getPersistentManager()
-
-        persistentManager.modifyQuantumInventoryReaderData(this.quantumInventoryReaderId) { currentContext ->
+        PersistentManager.modifyQuantumInventoryReaderData(this.quantumInventoryReaderId) { currentContext ->
             // Create a new PositionalContext with modified values
             currentContext.copy(toScanDirection = toScanDirection)
         }
@@ -122,7 +117,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
             return
         }
 
-        val (_, _, _, directionToScan) = SortSavvy.LifecycleGlobals.getPersistentManager().getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: run {
+        val (_, _, _, directionToScan) = PersistentManager.getQuantumInventoryReaderData()[quantumInventoryReaderId] ?: run {
             SortSavvy.logger.warn("Could not retrieve quantum inventory reader with id $quantumInventoryReaderId from persisted data")
             return
         }

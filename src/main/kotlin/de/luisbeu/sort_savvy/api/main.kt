@@ -5,6 +5,7 @@ import de.luisbeu.sort_savvy.api.plugins.configureAuthentication
 import de.luisbeu.sort_savvy.api.plugins.configureExceptions
 import de.luisbeu.sort_savvy.api.plugins.configureRouting
 import de.luisbeu.sort_savvy.api.plugins.configureSerialization
+import de.luisbeu.sort_savvy.config.ConfigManager
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -19,7 +20,7 @@ object WebServer {
     fun start() {
         // Use GlobalScope.launch to not block the main thread
         GlobalScope.launch {
-            applicationEngine = embeddedServer(Netty, port = SortSavvy.LifecycleGlobals.getConfigManager().config.webserverPort, module = { module() })
+            applicationEngine = embeddedServer(Netty, port = ConfigManager.getConfig().webserverPort, module = { module() })
             applicationEngine?.start(wait = true)
             SortSavvy.logger.info("Web Server started")
         }

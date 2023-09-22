@@ -43,39 +43,11 @@ object SortSavvy : ModInitializer {
 
         fun setMinecraftServer(server: MinecraftServer) {
             minecraftServer = server
-
-            // Also set all down stream dependencies new
-            configManager = ConfigManager()
-            persistentManager = PersistentManager()
-        }
-
-        // Config global
-        private var configManager: ConfigManager? = null
-
-        // Add a getter that throws if we try to access it at the wrong time
-        fun getConfigManager(): ConfigManager = configManager ?: run {
-            val msg = "Tried to access the config manager global outside its lifecycle"
-            logger.error(msg)
-            throw IllegalAccessError(msg)
-        }
-
-        // Config global
-        private var persistentManager: PersistentManager? = null
-
-        // Add a getter that throws if we try to access it at the wrong time
-        fun getPersistentManager(): PersistentManager = persistentManager ?: run {
-            val msg = "Tried to access the persistent manager global outside its lifecycle"
-            logger.error(msg)
-            throw IllegalAccessError(msg)
         }
 
         // Just to be sure set this to null so that our error throws if we try to access those at the wrong time
         fun destroy() {
-            persistentManager?.saveData()
-
             minecraftServer = null
-            configManager = null
-            persistentManager = null
         }
     }
 

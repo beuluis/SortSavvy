@@ -1,6 +1,7 @@
 package de.luisbeu.sort_savvy.api.plugins
 
 import de.luisbeu.sort_savvy.SortSavvy
+import de.luisbeu.sort_savvy.config.ConfigManager
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 
@@ -11,7 +12,7 @@ fun Application.configureAuthentication() {
         bearer {
             authenticate { tokenCredential ->
                 // Compare with the generated token in the config
-                if (tokenCredential.token == SortSavvy.LifecycleGlobals.getConfigManager().config.webserverBearerToken) {
+                if (tokenCredential.token == ConfigManager.getConfig().webserverBearerToken) {
                     // If the token matches we assign a dummy user id principal
                     // TODO: find better way or understand it
                     UserIdPrincipal("steve")

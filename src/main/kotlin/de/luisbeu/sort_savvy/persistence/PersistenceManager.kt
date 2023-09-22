@@ -18,21 +18,18 @@ data class DataStateModel(
     var quantumInventoryReaderData: MutableMap<String, PositionalContext> = mutableMapOf(),
 )
 
-class PersistentManager {
+object PersistentManager {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     // Not sure if the data directory is the best since it normally is dimension bases and for the overworld. But we write json anyway and not nbt, so I guess we are good.
     private val dataStateFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("data/SortSavvy.json").toString())
-    private var dataState: DataStateModel
+    // Initialize with default. Gets maybe overridden if a file already exists
+    private var dataState: DataStateModel = DataStateModel()
 
-    init {
+    fun load() {
         try {
             // Check if we already have a data file and if yes load it and deserialize it
             if (dataStateFile.exists()) {
                 dataState = gson.fromJson(FileReader(dataStateFile), DataStateModel::class.java)
-            } else {
-                // If not previous data file is found we create a new one with the default values defined by the model.
-                dataState = DataStateModel()
-                saveData()
             }
         } catch (error: Exception) {
             SortSavvy.logger.error("Data could not be loaded: ${error.message}")
@@ -111,6 +108,8 @@ class PersistentManager {
             FileWriter(dataStateFile).use { writer ->
                 gson.toJson(jsonObject, writer)
             }
+
+            SortSavvy.logger.info("Data was saved")
         } catch (error: Exception) {
             SortSavvy.logger.error("Data could not be saved: ${error.message}")
             throw error
