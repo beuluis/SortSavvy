@@ -25,17 +25,18 @@ data class SortSavvyConfigModel(
 
 object ConfigManager {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+
     private val configFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("serverconfig/SortSavvy.json").toString())
+
     // Initialize with default. Gets maybe overridden if a file already exists
     private var config: SortSavvyConfigModel = SortSavvyConfigModel()
 
+    // Load the config file if it exists, otherwise save the default config
     fun load() {
         try {
-            // Check if we already have a config file and if yes load it and deserialize it
             if (configFile.exists()) {
                 config = gson.fromJson(FileReader(configFile), SortSavvyConfigModel::class.java)
             } else {
-                // If no previous config file is found we save the default
                 saveConfig()
             }
         } catch (error: Exception) {
@@ -44,9 +45,7 @@ object ConfigManager {
         }
     }
 
-    fun getConfig(): SortSavvyConfigModel {
-        return config
-    }
+    fun getConfig(): SortSavvyConfigModel = config
 
     private fun saveConfig() {
         try {

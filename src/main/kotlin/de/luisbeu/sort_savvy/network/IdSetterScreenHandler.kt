@@ -13,16 +13,17 @@ import net.minecraft.util.math.BlockPos
 class IdSetterScreenHandler(
     syncId: Int, playerInventory: PlayerInventory, buf: PacketByteBuf = PacketByteBufs.empty()
 ) : ScreenHandler(SortSavvy.idSetterScreenHandlerType, syncId) {
-
-    // Set all the defaults
     private var pos = BlockPos.ORIGIN
+
     var id: String? = null
         // Set setter private since externals should use setId
         private set
+
     var directionToScan: String? = null
         // Set setter private
         private set
 
+    // Initialize the screen handler with the given buffer
     init {
         // We have different scenarios when the constructor is called. On register, we do not have a buffer when the handler gets returned by the entity we have one
         if (buf.readableBytes() > 0) {
@@ -32,26 +33,19 @@ class IdSetterScreenHandler(
         }
     }
 
-    // Setter for id to add some additional logic
+    // Set the id for the screen handler and send a packet to the client
     fun setId(id: String) {
-        // Update class attribute
         this.id = id
 
-        // Send package to client
         ClientPlayNetworking.send(
             SortSavvy.Constants.idSetterScreenSavedNetworkHandlerId,
             PacketByteBufs.create().writeBlockPos(pos).writeString(id)
         )
     }
 
+    // We don`t have slots. So we send null
+    override fun transferSlot(player: PlayerEntity?, index: Int): ItemStack? = null
 
-    // We don`t have slots. Don`t know why the interface requires that
-    override fun transferSlot(player: PlayerEntity?, index: Int): ItemStack? {
-        return null
-    }
-
-    // We are always able to use it
-    override fun canUse(player: PlayerEntity?): Boolean {
-        return true
-    }
+    // The screen handler can always be used
+    override fun canUse(player: PlayerEntity?): Boolean = true
 }

@@ -27,8 +27,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
     // Gets called when entity is dirty to save all to the disk
     override fun writeNbt(nbt: NbtCompound) {
         nbt.putString("quantumInventoryReaderId", quantumInventoryReaderId)
-
-        return super.writeNbt(nbt)
+        super.writeNbt(nbt)
     }
 
     // Reads all data from the disk on load
@@ -50,30 +49,29 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // Expose a function to set the quantum inventory reader id from the screen
     override fun setId(newId: String, player: ServerPlayerEntity?) {
-        if (newId.isEmpty() && this.quantumInventoryReaderId.isNotEmpty()) {
-            val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
-
-            PersistentManager.deleteQuantumInventoryReaderData(this.quantumInventoryReaderId)
-            this.quantumInventoryReaderId = ""
+        if (newId.isEmpty() && quantumInventoryReaderId.isNotEmpty()) {
+            val oldQuantumInventoryReaderId = quantumInventoryReaderId
+            PersistentManager.deleteQuantumInventoryReaderData(quantumInventoryReaderId)
+            quantumInventoryReaderId = ""
 
             // When it was triggered by a player send a message
             player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.deletedDataEntry", oldQuantumInventoryReaderId), true)
-        } else if (this.quantumInventoryReaderId.isNotEmpty() && newId != this.quantumInventoryReaderId) {
-            val oldQuantumInventoryReaderId = this.quantumInventoryReaderId
-
-            PersistentManager.renameQuantumInventoryReaderData(this.quantumInventoryReaderId, newId)
-            this.quantumInventoryReaderId = newId
+        } else if (quantumInventoryReaderId.isNotEmpty() && newId != quantumInventoryReaderId) {
+            val oldQuantumInventoryReaderId = quantumInventoryReaderId
+            PersistentManager.renameQuantumInventoryReaderData(quantumInventoryReaderId, newId)
+            quantumInventoryReaderId = newId
 
             // When it was triggered by a player send a message
             player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.renamedDataEntry", oldQuantumInventoryReaderId, newId), true)
-        } else if (this.quantumInventoryReaderId != newId) {
+        } else if (quantumInventoryReaderId != newId) {
             if (PersistentManager.getQuantumInventoryReaderData().containsKey(newId)) {
                 player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.dataEntryAlreadyExists", newId), true)
             } else {
                 PersistentManager.addQuantumInventoryReaderData(newId, PositionalContext(pos.x, pos.y, pos.z, Direction.UP, getWorldKey()))
-                this.quantumInventoryReaderId = newId
+                quantumInventoryReaderId = newId
+
                 // When it was triggered by a player send a message
-                player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.newDataEntry", this.quantumInventoryReaderId), true)
+                player?.sendMessageToClient(Text.translatable("overlay.sort_savvy.newDataEntry", quantumInventoryReaderId), true)
             }
         }
 
@@ -83,7 +81,7 @@ class QuantumInventoryReaderEntity(pos: BlockPos, state: BlockState) :
 
     // Expose a function to set the quantum inventory reader to scan direction from the screen
     fun setToScanDirection(toScanDirection: Direction, player: ServerPlayerEntity?) {
-        PersistentManager.modifyQuantumInventoryReaderData(this.quantumInventoryReaderId) { currentContext ->
+        PersistentManager.modifyQuantumInventoryReaderData(quantumInventoryReaderId) { currentContext ->
             // Create a new PositionalContext with modified values
             currentContext.copy(toScanDirection = toScanDirection)
         }

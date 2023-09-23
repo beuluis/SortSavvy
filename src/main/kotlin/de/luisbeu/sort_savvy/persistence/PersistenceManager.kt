@@ -20,8 +20,10 @@ data class DataStateModel(
 
 object PersistentManager {
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+
     // Not sure if the data directory is the best since it normally is dimension bases and for the overworld. But we write json anyway and not nbt, so I guess we are good.
     private val dataStateFile = File(SortSavvy.LifecycleGlobals.getMinecraftServer().getSavePath(WorldSavePath.ROOT).resolve("data/SortSavvy.json").toString())
+
     // Initialize with default. Gets maybe overridden if a file already exists
     private var dataState: DataStateModel = DataStateModel()
 
@@ -37,9 +39,7 @@ object PersistentManager {
         }
     }
 
-    fun getQuantumInventoryReaderData(): Map<String, PositionalContext> {
-        return dataState.quantumInventoryReaderData
-    }
+    fun getQuantumInventoryReaderData(): Map<String, PositionalContext> = dataState.quantumInventoryReaderData
 
     fun deleteQuantumInventoryReaderData(key: String) {
         dataState.quantumInventoryReaderData.remove(key)
@@ -57,13 +57,8 @@ object PersistentManager {
 
     fun modifyQuantumInventoryReaderData(key: String, modifier: (PositionalContext) -> PositionalContext) {
         // Get the current PositionalContext to pass it to a modifier method
-        val currentPositionalContext = dataState.quantumInventoryReaderData[key] ?: run {
-            val msg = "Could not modify quantum inventory reader data with id: $key"
-            SortSavvy.logger.error(msg)
-            throw Exception(msg)
-        }
+        val currentPositionalContext = dataState.quantumInventoryReaderData[key] ?: throw Exception("Could not modify quantum inventory reader data with id: $key")
 
-        // Pass it and get the updated version
         val updatedPositionalContext = modifier(currentPositionalContext)
 
         // Update it at class level
@@ -75,19 +70,13 @@ object PersistentManager {
 
     fun renameQuantumInventoryReaderData(oldKey: String, newKey: String) {
         // Retrieve the old PositionalContext and remove the old key
-        val positionalContext = dataState.quantumInventoryReaderData.remove(oldKey) ?: run {
-            val msg = "Could not retrieve previous data to rename quantum inventory reader data with id: $oldKey"
-            SortSavvy.logger.error(msg)
-            throw Exception(msg)
-        }
+        val positionalContext = dataState.quantumInventoryReaderData.remove(oldKey) ?: throw Exception("Could not retrieve previous data to rename quantum inventory reader data with id: $oldKey")
 
-        positionalContext.let {
-            // Add the old PositionalContext under the new key
-            dataState.quantumInventoryReaderData[newKey] = it
+        // Add the old PositionalContext under the new key
+        dataState.quantumInventoryReaderData[newKey] = positionalContext
 
-            // Instantly save to disk to not lose any data
-            saveData()
-        }
+        // Instantly save to disk to not lose any data
+        saveData()
     }
 
     fun saveData() {

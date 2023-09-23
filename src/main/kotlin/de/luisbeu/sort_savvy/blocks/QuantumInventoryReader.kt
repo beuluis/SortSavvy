@@ -14,16 +14,18 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.WOOD).strength(0.4f)), BlockEntityProvider {
+
+    // Create a new entity at the given position
     override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
-        // Spawn an entity on the same position as the placed block
         return QuantumInventoryReaderEntity(pos, state)
     }
 
+    // Set the render type to model
     override fun getRenderType(state: BlockState): BlockRenderType {
-        // The default is invisible so we set it to model
         return BlockRenderType.MODEL
     }
 
+    // Handle the block usage
     override fun onUse(
         state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hit: BlockHitResult
     ): ActionResult {
@@ -55,6 +57,7 @@ class QuantumInventoryReader : BlockWithEntity(FabricBlockSettings.of(Material.W
         return ActionResult.SUCCESS
     }
 
+    // Get the block entity at the given position
     private fun getBlockEntity (world: World, pos: BlockPos): QuantumInventoryReaderEntity? {
         val blockEntity = world.getBlockEntity(pos)
 

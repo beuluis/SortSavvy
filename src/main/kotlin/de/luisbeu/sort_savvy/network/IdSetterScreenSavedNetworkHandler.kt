@@ -1,4 +1,4 @@
-package de.luisbeu.sort_savvy.network;
+package de.luisbeu.sort_savvy.network
 
 import de.luisbeu.sort_savvy.SortSavvy
 import de.luisbeu.sort_savvy.entities.EntityWithId
@@ -11,6 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.ChunkPos
 
 class IdSetterScreenSavedNetworkHandler : PlayChannelHandler {
+    // Receive the packet and set the new id for the entity
     override fun receive(
         server: MinecraftServer,
         player: ServerPlayerEntity,
@@ -18,18 +19,19 @@ class IdSetterScreenSavedNetworkHandler : PlayChannelHandler {
         buf: PacketByteBuf,
         responseSender: PacketSender
     ) {
+        // Read the block position and new id from the buffer
         val pos = buf.readBlockPos()
         val newId = buf.readString()
 
-        // Check and load chunk on pos from the buffer
+        // Check if there is an entity with the given id at the block position
         val chunkPos = ChunkPos(pos)
         val chunk = player.world.getChunk(chunkPos.x, chunkPos.z)
-        val blockEntity = (chunk?.getBlockEntity(pos) as? EntityWithId)?: run {
+        val blockEntity = (chunk?.getBlockEntity(pos) as? EntityWithId) ?: run {
             SortSavvy.logger.warn("No entity with id found at $pos")
             return
         }
 
+        // Set the new id for the entity
         blockEntity.setId(newId, player)
     }
-
 }

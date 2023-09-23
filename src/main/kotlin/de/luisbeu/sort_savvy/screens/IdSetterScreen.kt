@@ -49,8 +49,7 @@ class IdSetterScreen(
         // Check if the handler is of the correct type
         if (handler !is IdSetterScreenHandler) {
             val msg = "Invalid screen handler type"
-            SortSavvy.logger.error(msg)
-            throw IllegalStateException(msg)
+            throw IllegalStateException("Invalid screen handler type")
         }
 
         // Set the size of the screen
