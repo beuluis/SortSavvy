@@ -4,6 +4,7 @@
   "gui.sort_savvy.save": "Save",
   "gui.sort_savvy.unnamed": "Unnamed",
   "gui.sort_savvy.toScanDirectoryHelper": "Tries to scan: %d",
+  "gui.sort_savvy.toScanDirectoryHelper.tooltip": "Sneak click on side to change.",
   "overlay.sort_savvy.deletedDataEntry": "%d was deleted.",
   "overlay.sort_savvy.renamedDataEntry": "%d was renamed to %d.",
   "overlay.sort_savvy.dataEntryAlreadyExists": "%d exists already. Was not added.",

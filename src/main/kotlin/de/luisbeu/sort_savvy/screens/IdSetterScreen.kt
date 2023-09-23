@@ -14,98 +14,122 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
+import kotlin.properties.Delegates
 
 class IdSetterScreen(
     handler: ScreenHandler, playerInventory: PlayerInventory, title: Text
 ) : HandledScreen<ScreenHandler>(handler, playerInventory, title) {
 
     companion object {
+        // The texture used for the background of the screen
         val texture = Identifier(SortSavvy.Constants.modId, "textures/gui/container/default_backdrop.png")
+        // The margin between the edge of the screen and the content
+        const val MARGIN = 7
+        // The padding between elements
+        const val PADDING = 5
+        // The height of the header section
+        const val HEADER_HEIGHT = 13
+        // The height of the footer section
+        const val FOOTER_HEIGHT = 30
     }
 
-    // Add all ui attributes to make them available
+    // The text field used to enter the ID
     private lateinit var textField: TextFieldWidget
+    // The button used to save the ID
     private lateinit var safeButton: ButtonWidget
-    private val margin = 7 // All stuff where we need space to a border
-    private val padding = 5 // All stuff where we need space to content
-    private var isDirty = false
-    private val headerHeight = 13
-    private val footerHeight = 30
 
-    // It`s important to do it in init and not during the constructor. Here some attributes are initialized that we need to access
+    // The text displayed below the text field
+    private var labelText: Text? = null
+    // The x position of the label
+    private var labelX = MARGIN.toFloat()
+    // The y position of the label
+    private var labelY by Delegates.notNull<Float>()
+
     override fun init() {
-        // Crash when the screen gets called by the wrong handler
+        // Check if the handler is of the correct type
         if (handler !is IdSetterScreenHandler) {
             val msg = "Invalid screen handler type"
             SortSavvy.logger.error(msg)
             throw IllegalStateException(msg)
         }
 
+        // Set the size of the screen
         backgroundWidth = 174
         backgroundHeight = 93
 
-        titleX = margin
-        titleY = (headerHeight - textRenderer.fontHeight + 2) / 2 // + 2 just looks nicer when the font goes more to the bottom
+        // Set the position of the title
+        titleX = MARGIN
+        titleY = (HEADER_HEIGHT - textRenderer.fontHeight + 2) / 2
 
-        val textFieldWidth = backgroundWidth - 2 * margin
-        val textFieldHeight = textRenderer.fontHeight + 2 * padding
+        // Calculate the size of the text field
+        val textFieldWidth = backgroundWidth - 2 * MARGIN
+        val textFieldHeight = textRenderer.fontHeight + 2 * PADDING
 
+        // Calculate the size of the save button
         val buttonText = Text.translatable("gui.sort_savvy.save")
-        val buttonWidth = textRenderer.getWidth(buttonText) + 2 * padding
-        val buttonHeight = textRenderer.fontHeight + 2 * padding
+        val buttonWidth = textRenderer.getWidth(buttonText) + 2 * PADDING
+        val buttonHeight = textRenderer.fontHeight + 2 * PADDING
+
+        // Calculate the position of the label
+        labelY = (backgroundHeight - (FOOTER_HEIGHT / 2) - (textRenderer.fontHeight / 2)).toFloat()
 
         // Initialize the text field
         textField = TextFieldWidget(
             textRenderer,
             // Position it in the middle of the inner texture body
             (width - textFieldWidth) / 2,
-            (height - headerHeight - textFieldHeight) / 2,
+            (height - HEADER_HEIGHT - textFieldHeight) / 2,
             textFieldWidth,
             textFieldHeight,
             // Call the handler to get the buffered id
             Text.of("")
-        )
-        textField.text = (handler as IdSetterScreenHandler).id
+        ).apply {
+            text = (handler as IdSetterScreenHandler).id
+            setTextFieldFocused(true)
+        }
 
-        textField.setTextFieldFocused(true)
-
-        // Register new ui element
+        // Register the text field as a UI element
         addDrawableChild(textField)
 
-        // Initialize the button
+        // Initialize the save button
         safeButton = ButtonWidget(
-            (width - backgroundWidth) / 2 + backgroundWidth - buttonWidth - margin,
-            (height - backgroundHeight) / 2 + backgroundHeight - (footerHeight + buttonHeight) / 2,
+            (width - backgroundWidth) / 2 + backgroundWidth - buttonWidth - MARGIN,
+            (height - backgroundHeight) / 2 + backgroundHeight - (FOOTER_HEIGHT + buttonHeight) / 2,
             buttonWidth,
             buttonHeight,
             buttonText
         ) {
-            // Update the handler with the new value
+            // Set the ID and close the screen
             (handler as IdSetterScreenHandler).setId(textField.text)
-            // Close the screen
             close()
         }
 
-        // Register new ui element
+        // Register the save button as a UI element
         addDrawableChild(safeButton)
+
+        // Set the label text if there is a direction to scan
+        val toScanDirection = (handler as IdSetterScreenHandler).directionToScan
+        if (toScanDirection != "") {
+            labelText = Text.translatable("gui.sort_savvy.toScanDirectoryHelper", toScanDirection)
+        }
 
         // Call super last to make sure all our stuff is used
         super.init()
     }
 
-    // Draw the background
     override fun drawBackground(matrices: MatrixStack?, delta: Float, mouseX: Int, mouseY: Int) {
+        // Set the shader to draw textures
         RenderSystem.setShader(GameRenderer::getPositionTexShader)
-        // Set fon colors
+        // Set the color to white
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-        // Set our texture of 256x256
+        // Set the texture to the background texture
         RenderSystem.setShaderTexture(0, texture)
 
-        // Calculate the 0, 0 position of out screen
+        // Calculate the position of the screen
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
 
-        // Draw the section from 0 to backgroundWidth and 0 to backgroundHeight on out texture at x and y
+        // Draw the background texture
         drawTexture(
             matrices, x, y, 0, 0, backgroundWidth, backgroundHeight
         )
@@ -116,13 +140,24 @@ class IdSetterScreen(
     override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
         renderBackground(matrices)
         textField.render(matrices, mouseX, mouseY, delta)
+
         super.render(matrices, mouseX, mouseY, delta)
-        drawMouseoverTooltip(matrices, mouseX, mouseY)
+    }
+
+    // Check if the mouse is over a label
+    private fun isMouseOverLabel(mouseX: Int, mouseY: Int, x: Float, y: Float, label: Text): Boolean {
+        val labelWidth = textRenderer.getWidth(label)
+        val labelHeight = textRenderer.fontHeight
+
+        // Convert mouseX and mouseY to be relative to the IdSetterScreen element
+        val relativeMouseX = mouseX - (width - backgroundWidth) / 2
+        val relativeMouseY = mouseY - (height - backgroundHeight) / 2
+
+        return relativeMouseX >= x && relativeMouseX < x + labelWidth && relativeMouseY >= y && relativeMouseY < y + labelHeight
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        isDirty = true
-        // handle all key presses
+        // Handle all key presses
         if (textField.keyPressed(keyCode, scanCode, modifiers)) {
             return true
         }
@@ -134,16 +169,26 @@ class IdSetterScreen(
     }
 
     override fun charTyped(chr: Char, modifiers: Int): Boolean {
-        // handle all typed chars
+        // Handle all typed chars
         if (textField.charTyped(chr, modifiers)) {
             return true
         }
         return super.charTyped(chr, modifiers)
     }
 
+    private fun renderRelativeTooltip(matrices: MatrixStack?, tooltipText: Text, mouseX: Int, mouseY: Int) {
+        // Convert mouseX and mouseY to be relative to the IdSetterScreen element
+        val relativeMouseX = mouseX - (width - backgroundWidth) / 2
+        val relativeMouseY = mouseY - (height - backgroundHeight) / 2
+
+        renderTooltip(matrices, tooltipText, relativeMouseX, relativeMouseY)
+    }
+
     override fun drawForeground(matrices: MatrixStack?, mouseX: Int, mouseY: Int) {
+        // The text to append to the title if it overflows
         val overflowAppend = Text.of("...")
-        val maxWidth = backgroundWidth - textRenderer.getWidth(overflowAppend) - 2 * padding
+        // The maximum width of the title before it overflows
+        val maxWidth = backgroundWidth - textRenderer.getWidth(overflowAppend) - 2 * PADDING
 
         var truncatedTitle = title.string
 
@@ -152,22 +197,26 @@ class IdSetterScreen(
             truncatedTitle = textRenderer.trimToWidth(title.string, maxWidth) + "..."
         }
 
-        // Implement out own foreground objects. Don`t call super because we don`t want them here
+        // Draw the title
         textRenderer.draw(matrices, truncatedTitle, titleX.toFloat(), titleY.toFloat(), Color.WHITE.rgb)
 
-        // Draw the direction to scan in the bottom left corner
-        val toScanDirection = (handler as IdSetterScreenHandler).directionToScan
-        if (toScanDirection != "") {
-            val labelText = Text.translatable("gui.sort_savvy.toScanDirectoryHelper", toScanDirection)
+        // Draw the label if there is one
+        labelText?.let {
             textRenderer.draw(
                 matrices,
-                labelText,
-                margin.toFloat(),
-                (backgroundHeight - (footerHeight / 2) - (textRenderer.fontHeight / 2)).toFloat(),
+                it,
+                labelX,
+                labelY,
                 Color.BLACK.rgb
             )
-        }
 
-        // TODO: add tooltip
+            // Check if the mouse is over the label
+            if (isMouseOverLabel(mouseX, mouseY, labelX, labelY, it)) {
+                // If it is, show a tooltip
+                val tooltipText = Text.translatable("gui.sort_savvy.toScanDirectoryHelper.tooltip")
+
+                renderRelativeTooltip(matrices, tooltipText, mouseX, mouseY)
+            }
+        }
     }
 }
